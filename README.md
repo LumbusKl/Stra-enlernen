@@ -1,31 +1,32 @@
-# Straßenlern-App – V3
+# Straßenlernen-App – V4
 
-Installierbare Progressive Web App (PWA) für das definierte Einsatzgebiet rund um Pinneberg.
+PWA für das definierte Einsatzgebiet rund um Pinneberg.
 
-## Einsatzgebiet
-- Pinneberg
-- Kummerfeld
-- Prisdorf
-- Borstel-Hohenraden
-- Ellerbek
-- Bönningstedt
-- Hasloh
-- Rellingen
-- Egenbüttel (Ortsteil-Zuordnung innerhalb Rellingen, näherungsweise)
-- Tangstedt (Kreis Pinneberg)
-- Halstenbek nur nördlich der Bahnstrecke
+## Daten
 
-## V3 – wichtige Änderungen
-- Benannte Straßen werden beim ersten Start **gemeindeweise und vollständig** aus OpenStreetMap geladen.
-- Der Abruf läuft nacheinander mit sichtbarem Fortschritt statt mit mehreren großen parallelen Anfragen.
-- Drei Overpass-Datenquellen werden automatisch als Fallback versucht.
-- Der fertige Datensatz wird in IndexedDB auf dem Gerät gespeichert.
-- Beim nächsten Start werden die gespeicherten Daten sofort verwendet; ein erneuter Abruf startet nur über „OSM-Daten aktualisieren“.
-- Gemeindegrenzen und Bahnlinie blockieren den Straßenlern-Datensatz nicht mehr, falls eine einzelne Zusatzabfrage ausfällt.
-- Halstenbek wird anhand der geladenen Bahnlinie auf den nördlichen Bereich begrenzt.
-- Lernfortschritt, Suche, Karte, Spiele und Routing bleiben erhalten.
+V4 verwendet OpenPLZ für das Straßenverzeichnis. OpenPLZ veröffentlicht Straßen- und Ortsdaten auf Basis von OpenStreetMap und unterstützt Paging; die App lädt die Seiten der zehn definierten Orte nacheinander und speichert den Datensatz anschließend lokal per IndexedDB.
 
-## Hinweis
-Die Straßenabdeckung basiert auf den zum Abrufzeitpunkt in OpenStreetMap vorhandenen benannten Straßen. Sie ist damit eine OSM-Datengrundlage und kein amtliches polizeiliches Straßenverzeichnis.
+Referenzgrößen der aktuell abgerufenen Straßenverzeichnisse: insgesamt ca. 939 Straßen-Gruppen über Pinneberg, Rellingen, Halstenbek, Ellerbek, Bönningstedt, Hasloh, Kummerfeld, Prisdorf, Borstel-Hohenraden und Tangstedt (Kreis Pinneberg). Die App zeigt Abweichungen von diesen Referenzzahlen an, statt stillschweigend eine unvollständige Liste als vollständig zu kennzeichnen.
 
-Kartendaten: © OpenStreetMap-Mitwirkende, ODbL.
+Hinweis: Halstenbek wird in V4 als Gemeinde-Straßenliste geladen; die geometrische Nordseite der Bahnlinie wird nicht aus dem OpenPLZ-Namensdatensatz abgeleitet. Für eine rechtssichere räumliche Begrenzung muss die Bahn-Geometrie mit den Straßen-Geometrien abgeglichen werden.
+
+## Funktionen
+
+- vollständiges paginiertes Straßenverzeichnis
+- Suche nach Straße und Ort
+- lokaler Lernfortschritt
+- gewichtete Schwachstellen-Wiederholung
+- Straßen-Quiz
+- Karten-/Geocoding-Suche einzelner Straßen
+- Route Polizeirevier Pinneberg → Zielstraße über OSRM
+- 30-Sekunden-Challenge
+- Export des Lernstands
+- IndexedDB-Cache für schnelle Folgeaufrufe
+
+## Dienststelle
+
+Polizeirevier Pinneberg, Elmshorner Straße 40, 25421 Pinneberg.
+
+## Quellen
+
+OpenPLZ API / OpenStreetMap-Daten, ODbL. Kartendarstellung: Leaflet + OpenStreetMap. Routing: OSRM.

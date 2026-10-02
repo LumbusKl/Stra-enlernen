@@ -7,7 +7,7 @@
 <meta name="description" content="Straßenlern-App für das Einsatzgebiet Pinneberg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<title>Straßenlernen – Einsatzgebiet Pinneberg</title>
+<title>Straßenlernen V4 – Einsatzgebiet Pinneberg</title>
 <style>
 :root{--navy:#17324d;--blue:#2367a5;--bg:#f3f5f7;--card:#fff;--text:#16202a;--muted:#66727e;--border:#dce2e7;--good:#218739;--warn:#c58a00;--bad:#c13c32;--purple:#6d45b5}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
@@ -24,25 +24,25 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 </style>
 </head>
 <body>
-<header><h1>🚓 Straßenlernen</h1><p>Einsatzgebiet Pinneberg · Lern-, Karten- und Routen-App</p></header>
+<header><h1>🚓 Straßenlernen V4</h1><p>Einsatzgebiet Pinneberg · Lern-, Karten- und Routen-App</p></header>
 <nav>
 <button class="active" data-view="lernen">📚 Lernen</button><button data-view="karte">🗺️ Karte</button><button data-view="spiele">🎮 Spiele</button><button data-view="fortschritt">📈 Fortschritt</button>
 </nav>
 <main>
 <section id="lernen" class="view active">
-<h2>Straßen lernen</h2><p class="sub">Alle benannten Straßen aus den definierten Einsatzgemeinden. Schwache Straßen werden in den Spielen häufiger gezogen.</p>
+<h2>Straßen lernen</h2><p class="sub">Alle Straßen aus dem definierten Einsatzgebiet. Der erste Start lädt die vollständigen Straßenlisten und speichert sie lokal auf dem Gerät. Schwache Straßen werden in den Spielen häufiger gezogen.</p>
 <div class="filters"><input id="search" placeholder="Straße oder Ort suchen …"><select id="place"><option>Alle Orte</option></select></div><div id="chips" class="chips"></div>
 <div id="dataStatus" class="notice">Bereit. Beim ersten Start werden die vollständigen Straßendaten einmalig von OpenStreetMap geladen.</div><div id="streetList"></div>
 </section>
 <section id="karte" class="view">
-<h2>Einsatzgebiet-Karte</h2><p class="sub">Gemeindegrenzen, Straßen, Bahnlinie und Dienststelle. Halstenbek wird auf den Bereich nördlich der Bahnstrecke begrenzt.</p>
+<h2>Einsatzgebiet-Karte</h2><p class="sub">Straßenverzeichnis, Kartenansicht und Routen ab der Dienststelle. Straßenpositionen werden bei Bedarf aus OpenStreetMap geocodiert.</p>
 <div id="map"></div>
-<div class="legend"><span>🔵 unbekannt</span><span>🟡 in Training</span><span>🟢 sicher</span><span>⬛ Gemeindegrenze</span><span>🚆 Bahnlinie</span></div>
-<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ OSM-Daten aktualisieren</button></div>
+<div class="legend"><span>🔵 unbekannt</span><span>🟡 in Training</span><span>🟢 sicher</span><span>📍 Straßenposition bei Kartensuche</span></div>
+<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ Straßendaten aktualisieren</button></div>
 <div id="mapStatus" class="small"></div>
 </section>
 <section id="spiele" class="view">
-<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben verwenden denselben gespeicherten OSM-Straßendatensatz wie die Lernliste.</p>
+<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben verwenden denselben lokal gespeicherten Straßendatensatz wie die Lernliste.</p>
 <div class="game-grid">
 <div class="card game" data-game="quiz"><h3>🧠 Straßen-Quiz</h3><p>Welche Gemeinde gehört zur Straße?</p></div>
 <div class="card game" data-game="mapfind"><h3>🗺️ Wo liegt die Straße?</h3><p>Merke dir die Lage und blende die Straße danach ein.</p></div>
@@ -65,9 +65,9 @@ const CONFIG={
  overpassEndpoints:["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://overpass.private.coffee/api/interpreter"],
  router:"https://router.project-osrm.org/route/v1/driving",
  areas:[
-  {name:"Pinneberg",rel:443487,scope:"complete"},{name:"Kummerfeld",rel:443359,scope:"complete"},{name:"Prisdorf",rel:443358,scope:"complete"},{name:"Borstel-Hohenraden",rel:443731,scope:"complete"},
-  {name:"Ellerbek",rel:443703,scope:"complete"},{name:"Bönningstedt",rel:443704,scope:"complete"},{name:"Hasloh",rel:443705,scope:"complete"},{name:"Halstenbek",rel:443486,scope:"north_of_railway"},
-  {name:"Rellingen",rel:443755,scope:"complete"},{name:"Tangstedt (Kreis Pinneberg)",rel:443706,scope:"complete"}
+  {name:"Pinneberg",apiLocality:"Pinneberg"},{name:"Kummerfeld",apiLocality:"Kummerfeld"},{name:"Prisdorf",apiLocality:"Prisdorf"},{name:"Borstel-Hohenraden",apiLocality:"Borstel-Hohenraden"},
+  {name:"Ellerbek",apiLocality:"Ellerbek"},{name:"Bönningstedt",apiLocality:"Bönningstedt"},{name:"Hasloh",apiLocality:"Hasloh"},{name:"Halstenbek",apiLocality:"Halstenbek",scope:"north_of_railway"},
+  {name:"Rellingen",apiLocality:"Rellingen"},{name:"Tangstedt (Kreis Pinneberg)",apiLocality:"Tangstedt"}
  ],
  egen:{name:"Egenbüttel",lat:53.65257,lon:9.85186,radiusM:1800}
 };
@@ -86,114 +86,30 @@ function renderList(){const q=$("search").value.trim().toLowerCase(),p=$("place"
 function learnStreet(id){const s=streets.find(x=>x.id===id);if(!s)return;progress[id]=Math.min(100,score(id)+20);save();renderList();renderProgress();if(map)focusStreet(s);}
 function renderProgress(){const known=streets.filter(s=>score(s.id)>=80).length,avg=streets.length?Math.round(streets.reduce((a,s)=>a+score(s.id),0)/streets.length):0;$("statKnown").textContent=known;$("statTotal").textContent=streets.length;$("statPercent").textContent=avg+"%";$("statAreas").textContent=uniquePlaces().length;$("progressList").innerHTML=uniquePlaces().map(p=>{const a=streets.filter(s=>s.place===p),v=a.length?Math.round(a.reduce((x,s)=>x+score(s.id),0)/a.length):0;return `<div class="card"><b>${esc(p)}</b><div class="muted">${a.length} Straßen · Ø ${v}%</div><div class="progressbar"><i style="width:${v}%"></i></div></div>`}).join("")}
 function setLoadStatus(msg, error=false){const el=$("dataStatus");el.classList.toggle("error",!!error);el.innerHTML=msg}
-async function fetchOverpass(query, label="OSM-Daten"){
-  let last;
-  for(let i=0;i<CONFIG.overpassEndpoints.length;i++){
-    const endpoint=CONFIG.overpassEndpoints[i];
-    try{
-      setLoadStatus(`${esc(label)}<br><span class="small">Datenquelle ${i+1}/${CONFIG.overpassEndpoints.length} · Anfrage läuft …</span>`);
-      const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),65000);
-      const r=await fetch(endpoint+"?data="+encodeURIComponent(query),{signal:ctrl.signal,headers:{Accept:"application/json"},cache:"no-store"});
-      clearTimeout(tm);
-      if(!r.ok) throw new Error("HTTP "+r.status);
-      const j=await r.json();
-      return j;
-    }catch(e){last=e}
-  }
-  throw last||new Error("Overpass nicht erreichbar");
-}
-function roadQueryForArea(a){
-  const areaId=3600000000+a.rel;
-  return `[out:json][timeout:120];way(area:${areaId})["highway"]["name"];out geom;`;
-}
-async function loadAllOSM(){
-  const allWays=[]; const timestamps=[];
-  for(let i=0;i<CONFIG.areas.length;i++){
-    const area=CONFIG.areas[i];
-    setLoadStatus(`<b>OSM-Daten werden geladen …</b><br>${i+1}/${CONFIG.areas.length}: <b>${esc(area.name)}</b><br><span class="small">Vollständige benannte Straßen werden nacheinander geladen. Bitte die App nicht schließen.</span>`);
-    const j=await fetchOverpass(roadQueryForArea(area),area.name);
-    timestamps.push(j.osm3s?.timestamp_osm_base);
-    for(const e of j.elements||[]){
-      if(e.type!=="way"||!e.tags?.name||!e.geometry?.length||!ROAD_TYPES.includes(e.tags.highway))continue;
-      allWays.push({e,area});
-    }
-  }
-  setLoadStatus(`<b>Straßen geladen.</b><br>${allWays.length.toLocaleString("de-DE")} Kartenabschnitte gefunden.<br><span class="small">Grenzen und Bahnlinie werden separat geladen …</span>`);
-
-  const grouped=new Map();
-  for(const {e,area} of allWays){
-    const key=area.name+"|"+e.tags.name;
-    if(grouped.has(key)){const old=grouped.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}
-    else grouped.set(key,{id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway});
-  }
-  streets=[...grouped.values()];
-  for(const s of streets){
-    if(s.place!=="Rellingen")continue;
-    const c=centroid(s.geometry);
-    if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}
-  }
-
-  // Railway inside Halstenbek is queried independently. This prevents a failed boundary request from blocking the street list.
-  try{
-    const h=CONFIG.areas.find(a=>a.name==="Halstenbek");
-    const rq=`[out:json][timeout:90];way(area:${3600000000+h.rel})[railway="rail"];out geom;`;
-    const rj=await fetchOverpass(rq,"Bahnlinie Halstenbek");
-    railway=extractRailwayGeometry(rj);
-    applyHalstenbekFilter();
-  }catch(e){
-    railway=[];
-    streets=streets.filter(s=>s.place!=="Halstenbek");
-    setLoadStatus(`<b>Straßen geladen, Halstenbek vorläufig ausgelassen.</b><br>Die Bahnlinie konnte nicht geladen werden. Bitte später „OSM-Daten aktualisieren“ ausführen, damit der nördliche Halstenbek-Bereich korrekt ergänzt wird.`);
-  }
-
-  // Boundaries are useful for the map but are not allowed to block learning data.
-  try{
-    const q=`[out:json][timeout:120];rel(id:${CONFIG.areas.map(a=>a.rel).join(",")});out geom;`;
-    const bounds=await fetchOverpass(q,"Gemeindegrenzen");
-    boundaries=parseBoundaries(bounds.elements||[]);
-  }catch(e){boundaries=[]}
-
-  await saveDatasetCache();
-  const validTimestamps=timestamps.filter(Boolean);
-  return {timestamp:validTimestamps.sort().slice(-1)[0]||new Date().toISOString()};
-}
-function parseBoundaries(elements){const out=[];for(const rel of elements){const a=CONFIG.areas.find(x=>x.rel===rel.id);if(!a||!rel.members)continue;const members=rel.members.filter(m=>m.type==="way"&&m.role==="outer"&&m.geometry?.length);out.push({name:a.name,rel:a.rel,members});}return out}
-function pointInRing(pt,ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i].lon,yi=ring[i].lat,xj=ring[j].lon,yj=ring[j].lat;const intersect=((yi>pt.lat)!==(yj>pt.lat))&&(pt.lon<(xj-xi)*(pt.lat-yi)/(yj-yi)+xi);if(intersect)inside=!inside}return inside}
-function insideBoundary(pt,b){return b.members.some(m=>pointInRing(pt,m.geometry))}
-function classifyRoads(ways,bounds){const mapByKey=new Map();for(const e of ways){const c=centroid(e.geometry);if(!c)continue;let area=CONFIG.areas.find(a=>bounds.find(b=>b.rel===a.rel&&insideBoundary(c,b)));if(!area)continue;const key=area.name+"|"+e.tags.name;const item={id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway};if(mapByKey.has(key)){const old=mapByKey.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}else mapByKey.set(key,item)}
- // Egenbüttel is an official Rellingen Ortsteil, not an independent municipality. For training we give it a separate label using a radius around the mapped Ortsteil centre and mark it as approximate.
- for(const s of mapByKey.values()){if(s.place!=="Rellingen")continue;const c=centroid(s.geometry);if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}}
- return [...mapByKey.values()]
-}
-function extractRailwayGeometry(j){const out=[];for(const rel of j.elements||[]){for(const m of rel.members||[]){if(m.type==="way"&&m.geometry?.length)out.push(m.geometry)}}return out}
-function railLatAtLon(seg,lon){for(let i=1;i<seg.length;i++){const a=seg[i-1],b=seg[i];if((lon>=Math.min(a.lon,b.lon)&&lon<=Math.max(a.lon,b.lon))&&Math.abs(b.lon-a.lon)>1e-9){const t=(lon-a.lon)/(b.lon-a.lon);return a.lat+t*(b.lat-a.lat)}}return seg[Math.floor(seg.length/2)]?.lat??0}
-function applyHalstenbekFilter(){if(!railway.length)return;streets=streets.filter(s=>{if(s.place!=="Halstenbek")return true;const c=centroid(s.geometry);if(!c)return false;let best=Infinity,railLat=0;for(const seg of railway){for(let i=1;i<seg.length;i++){const a=seg[i-1],b=seg[i];const dx=(b.lon-a.lon)*Math.cos(c.lat*Math.PI/180),dy=b.lat-a.lat;const px=(c.lon-a.lon)*Math.cos(c.lat*Math.PI/180),py=c.lat-a.lat;const len=dx*dx+dy*dy||1;let t=(px*dx+py*dy)/len;t=Math.max(0,Math.min(1,t));const x=a.lon+(b.lon-a.lon)*t,y=a.lat+(b.lat-a.lat)*t;const d=(x-c.lon)**2+(y-c.lat)**2;if(d<best){best=d;railLat=y}}}return c.lat>railLat+0.00003})}
-function datasetKey(){return "streetDatasetV3"}
-function openDatasetDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open("StrassenlernenDB",1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("dataset"))req.result.createObjectStore("dataset")};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+const OPENPLZ="https://openplzapi.org/de/Streets";
+const EXPECTED_COUNTS={"Pinneberg":291,"Rellingen":173,"Halstenbek":131,"Ellerbek":84,"Bönningstedt":54,"Hasloh":50,"Kummerfeld":34,"Prisdorf":38,"Borstel-Hohenraden":42,"Tangstedt (Kreis Pinneberg)":42};
+async function fetchJSON(url){const ctrl=new AbortController();const tm=setTimeout(()=>ctrl.abort(),30000);try{const r=await fetch(url,{signal:ctrl.signal,headers:{Accept:"application/json"},cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(tm)}}
+async function loadOpenPLZArea(area){let page=1,all=[];while(true){setLoadStatus(`<b>Straßendaten werden geladen …</b><br>${esc(area.name)} · Seite ${page}<br><span class="small">OpenPLZ / OpenStreetMap · ${all.length} Straßen bisher</span>`);const url=OPENPLZ+`?locality=${encodeURIComponent(area.apiLocality)}&page=${page}&pageSize=50`;const data=await fetchJSON(url);const rows=Array.isArray(data)?data:(data?.data||data?.results||[]);if(!rows.length)break;all.push(...rows);if(rows.length<50)break;if(++page>30)throw new Error("Unerwartet viele Seiten bei "+area.name)}if(area.name==="Tangstedt (Kreis Pinneberg)")all=all.filter(x=>String(x?.district?.name||"").toLowerCase().includes("pinneberg")||String(x?.postalcode||"")==="25499");const byName=new Map();for(const x of all){if(!x?.name)continue;const id=area.name+"|"+x.name;if(!byName.has(id))byName.set(id,{id,name:x.name,place:area.name,segments:1,geometry:[],api:x})}return [...byName.values()]}
+async function geocodeStreet(s){if(s._geo)return s._geo;const q=`${s.name}, ${s.place}, Schleswig-Holstein, Deutschland`;const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=de&q=${encodeURIComponent(q)}`;const ctrl=new AbortController();const tm=setTimeout(()=>ctrl.abort(),15000);try{const r=await fetch(url,{signal:ctrl.signal,headers:{Accept:"application/json"}});if(!r.ok)throw new Error("Geocoding HTTP "+r.status);const j=await r.json();if(!j.length)throw new Error("Straße nicht gefunden");s._geo={lat:Number(j[0].lat),lon:Number(j[0].lon),display:j[0].display_name};return s._geo}finally{clearTimeout(tm)}}
+async function loadAllOSM(){const out=[],errors=[];for(let i=0;i<CONFIG.areas.length;i++){const area=CONFIG.areas[i];try{const rows=await loadOpenPLZArea(area);out.push(...rows);const expected=EXPECTED_COUNTS[area.name];if(expected&&rows.length!==expected)errors.push(`${area.name}: ${rows.length} statt Referenz ${expected}`);setLoadStatus(`<b>${i+1}/${CONFIG.areas.length} Orte geladen ✓</b><br>${esc(area.name)}: <b>${rows.length}</b> Straßen<br><span class="small">Gesamt bisher: ${out.length.toLocaleString("de-DE")}</span>`)}catch(e){errors.push(`${area.name}: ${e?.message||"Fehler"}`)}}if(!out.length)throw new Error("OpenPLZ konnte keinen Straßendatensatz liefern.");streets=out;boundaries=[];railway=[];await saveDatasetCache();const note=errors.length?`<br><span class="small">Hinweise: ${errors.map(esc).join(" · ")}</span>`:"";return {timestamp:new Date().toISOString(),note}}
+function datasetKey(){return "streetDatasetV4"}
+function openDatasetDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open("StrassenlernenDB",2);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("dataset"))req.result.createObjectStore("dataset")};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
 async function saveDatasetCache(){try{const db=await openDatasetDB();await new Promise((resolve,reject)=>{const tx=db.transaction("dataset","readwrite");tx.objectStore("dataset").put({streets,boundaries,railway,savedAt:new Date().toISOString()},datasetKey());tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close()}catch(e){console.warn("IndexedDB Cache konnte nicht gespeichert werden",e)}}
 async function loadDatasetCache(){try{const db=await openDatasetDB();const x=await new Promise((resolve,reject)=>{const tx=db.transaction("dataset","readonly");const r=tx.objectStore("dataset").get(datasetKey());r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});db.close();if(x?.streets?.length){streets=x.streets;boundaries=x.boundaries||[];railway=x.railway||[];return x}}catch(e){}return null}
-async function loadData(){
-  setLoadStatus("<b>Prüfe gespeicherte Straßendaten …</b><br><span class=\"small\">Wenn bereits ein vollständiger Datensatz vorhanden ist, wird er sofort verwendet.</span>");
-  const cached=await loadDatasetCache();
-  if(cached){renderAll();setLoadStatus(`<b>Gespeicherter vollständiger Datensatz geladen.</b><br>${streets.length.toLocaleString("de-DE")} Straßen-Gruppen · gespeichert ${new Date(cached.savedAt).toLocaleString("de-DE")}<br><span class="small">Für einen neuen OSM-Stand bitte „OSM-Daten aktualisieren“ verwenden.</span>`);return}
-  try{const info=await loadAllOSM();renderAll();setLoadStatus(`<b>Fertig.</b><br>${streets.length.toLocaleString("de-DE")} Straßen-Gruppen aus dem definierten Einsatzgebiet geladen.<br><span class="small">OSM-Datenstand ${new Date(info.timestamp).toLocaleString("de-DE")}</span>`)}
-  catch(e){console.error(e);setLoadStatus(`<b>Straßendaten konnten nicht vollständig geladen werden.</b><br><span class="small">${esc(e?.message||"Unbekannter Fehler")}</span><br><button id="retry" class="primary" style="margin-top:8px">↻ Erneut versuchen</button>`,true);renderAll();$("retry").onclick=loadData}
-}
-async function refreshData(){try{const info=await loadAllOSM();renderAll();$("dataStatus").textContent=`Aktualisiert: ${streets.length} Straßen-Gruppen · ${new Date(info.timestamp).toLocaleString("de-DE")}`;}catch(e){$("mapStatus").textContent="Aktualisierung momentan nicht möglich – der letzte gespeicherte Datensatz bleibt aktiv."}}
+async function loadData(){setLoadStatus("<b>Prüfe gespeicherten Straßendatensatz …</b><br><span class=\"small\">Beim ersten Start werden die vollständigen Straßenlisten der definierten Orte über OpenPLZ geladen und danach lokal gespeichert.</span>");const cached=await loadDatasetCache();if(cached){renderAll();setLoadStatus(`<b>Gespeicherter Straßendatensatz geladen ✓</b><br>${streets.length.toLocaleString("de-DE")} Straßen · gespeichert ${new Date(cached.savedAt).toLocaleString("de-DE")}<br><span class="small">Keine erneute Abfrage beim Start.</span>`);return}try{const info=await loadAllOSM();renderAll();setLoadStatus(`<b>Fertig ✓</b><br>${streets.length.toLocaleString("de-DE")} Straßen aus ${uniquePlaces().length} Orten geladen und lokal gespeichert.${info.note||""}<br><span class="small">Quelle: OpenPLZ, basierend auf OpenStreetMap-Daten.</span>`)}catch(e){console.error(e);setLoadStatus(`<b>Straßendaten konnten nicht geladen werden.</b><br><span class="small">${esc(e?.message||"Unbekannter Fehler")}</span><br><button id="retry" class="primary" style="margin-top:8px">↻ Erneut versuchen</button>`,true);renderAll();if($("retry"))$("retry").onclick=loadData}}
+async function refreshData(){try{const info=await loadAllOSM();renderAll();setLoadStatus(`<b>Aktualisiert ✓</b><br>${streets.length.toLocaleString("de-DE")} Straßen neu geladen und lokal gespeichert.${info.note||""}`)}catch(e){setLoadStatus(`<b>Aktualisierung fehlgeschlagen.</b><br><span class="small">Der zuletzt gespeicherte Datensatz bleibt erhalten.</span>`,true)}}
 function renderAll(){renderPlaces();renderList();renderProgress();drawMap();}
 function initMap(){map=L.map("map").setView([53.66,9.84],11.5);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap-Mitwirkende"}).addTo(map);stationMarker=L.marker([CONFIG.station.lat,CONFIG.station.lon]).addTo(map).bindPopup(`<b>${CONFIG.station.name}</b><br>${CONFIG.station.address}`);drawMap()}
-function drawMap(){if(!map)return;if(mapLayer)map.removeLayer(mapLayer);if(boundaryLayer)map.removeLayer(boundaryLayer);if(railLayer)map.removeLayer(railLayer);const ls=[];for(const s of streets){if(!s.geometry?.length)continue;const latlng=s.geometry.map(p=>[p.lat,p.lon]);ls.push(L.polyline(latlng,{color:score(s.id)>=80?"#218739":score(s.id)>=40?"#c58a00":"#2367a5",weight:3,opacity:.75}).bindTooltip(`${esc(s.name)} · ${esc(s.place)}`,{sticky:true}).on("click",()=>learnStreet(s.id)))}mapLayer=L.layerGroup(ls).addTo(map);
- const bl=[];for(const b of boundaries){for(const m of b.members||[]){if(!m.geometry?.length)continue;bl.push(L.polyline(m.geometry.map(p=>[p.lat,p.lon]),{color:"#26343f",weight:2,dashArray:"6 5",opacity:.75}))}const first=b.members?.[0]?.geometry?.[Math.floor((b.members[0].geometry.length-1)/2)];if(first)L.marker([first.lat,first.lon],{icon:L.divIcon({className:"boundary-label",html:esc(b.name),iconSize:null})}).addTo(map)}boundaryLayer=L.layerGroup(bl).addTo(map);
- const rl=[];for(const seg of railway){if(seg?.length)rl.push(L.polyline(seg.map(p=>[p.lat,p.lon]),{color:"#222",weight:4,opacity:.8}))}railLayer=L.layerGroup(rl).addTo(map);$("mapStatus").textContent=`${streets.length} Straßen-Gruppen · ${boundaries.length} Gemeindegrenzen · Bahnlinie eingeblendet.`}
-function focusStreet(s){if(!s?.geometry?.length)return;const b=L.latLngBounds(s.geometry.map(p=>[p.lat,p.lon]));switchView("karte");setTimeout(()=>map.fitBounds(b,{padding:[30,30],maxZoom:17}),80)}
+function drawMap(){if(!map)return;if(mapLayer)map.removeLayer(mapLayer);const ls=[];for(const s of streets){if(!s._geo)continue;ls.push(L.circleMarker([s._geo.lat,s._geo.lon],{radius:4,color:score(s.id)>=80?"#218739":score(s.id)>=40?"#c58a00":"#2367a5",fillOpacity:.7}).bindTooltip(`${esc(s.name)} · ${esc(s.place)}`,{sticky:true}).on("click",()=>learnStreet(s.id)))}mapLayer=L.layerGroup(ls).addTo(map);$("mapStatus").textContent=`${streets.length} Straßen im Verzeichnis. Straßenpositionen werden bei Bedarf aus OpenStreetMap geocodiert.`}
+async function focusStreet(s){switchView("karte");try{const g=await geocodeStreet(s);s._geo=g;if(map){map.setView([g.lat,g.lon],16);L.marker([g.lat,g.lon]).addTo(map).bindPopup(`<b>${esc(s.name)}</b><br>${esc(s.place)}`).openPopup();}}catch(e){alert("Straße konnte auf der Karte nicht gefunden werden.")}}
 function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="karte")setTimeout(()=>map&&map.invalidateSize(),80)}
 function gameQuiz(){const s=weightedStreet();if(!s)return;const ps=uniquePlaces(),choices=[s.place,...ps.filter(p=>p!==s.place).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);$("gameBox").innerHTML=`<div class=quizbox><h3>Zu welchem Ort gehört diese Straße?</h3><div style="font-size:25px;font-weight:900;margin:14px 0">${esc(s.name)}</div><div class=answers>${choices.map(c=>`<button class=secondary data-a="${esc(c)}">${esc(c)}</button>`).join("")}</div></div>`;document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.a===s.place;if(ok){progress[s.id]=Math.min(100,score(s.id)+25);save()}alert(ok?"Richtig!":"Nicht richtig – die Straße gehört zu "+s.place+".");renderProgress();gameQuiz()})}
 function gameMapFind(){const s=weightedStreet();if(!s)return;selectedStreet=s;$("gameBox").innerHTML=`<div class=quizbox><h3>🗺️ Wo liegt „${esc(s.name)}“?</h3><p class=muted>Merke dir die vermutete Lage. Danach wird die echte Straße eingeblendet.</p><button id=showStreet class=primary>Straße anzeigen</button></div>`;switchView("karte");$("showStreet").onclick=()=>focusStreet(s)}
 function gameRoute(){const s=weightedStreet();if(!s)return;selectedStreet=s;$("gameBox").innerHTML=`<div class=quizbox><h3>🚓 Wache → ${esc(s.name)}</h3><p>Start: ${esc(CONFIG.station.address)}</p><p><b>Aufgabe:</b> Beschreibe den Fahrtweg aus dem Kopf. Erst danach die Route prüfen.</p><button id=routeShow class=primary>Route anzeigen</button></div>`}
-async function calculateRouteToStreet(s){if(!s?.geometry?.length)return;const end=s.geometry[Math.floor(s.geometry.length/2)];const url=`${CONFIG.router}/${CONFIG.station.lon},${CONFIG.station.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;try{const r=await fetch(url);if(!r.ok)throw 0;const j=await r.json();if(!j.routes?.length)throw 0;const rt=j.routes[0];switchView("karte");setTimeout(()=>{if(routeLayer)map.removeLayer(routeLayer);routeLayer=L.geoJSON(rt.geometry,{style:{color:"#d13d2f",weight:6}}).addTo(map);map.fitBounds(routeLayer.getBounds(),{padding:[30,30]});alert(`Route zur ${s.name}: ${Math.round(rt.distance/100)/10} km · ca. ${Math.round(rt.duration/60)} min.`)},80)}catch{alert("Routing momentan nicht erreichbar. Die Zielstraße kann trotzdem gelernt werden.")}}
+async function calculateRouteToStreet(s){if(!s)return;try{const end=await geocodeStreet(s);const url=`${CONFIG.router}/${CONFIG.station.lon},${CONFIG.station.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;const r=await fetch(url);if(!r.ok)throw 0;const j=await r.json();if(!j.routes?.length)throw 0;const rt=j.routes[0];switchView("karte");setTimeout(()=>{if(routeLayer)map.removeLayer(routeLayer);routeLayer=L.geoJSON(rt.geometry,{style:{color:"#d13d2f",weight:6}}).addTo(map);map.fitBounds(routeLayer.getBounds(),{padding:[30,30]});alert(`Route zur ${s.name}: ${Math.round(rt.distance/100)/10} km · ca. ${Math.round(rt.duration/60)} min.`)},80)}catch{alert("Kartensuche oder Routing momentan nicht erreichbar. Die Zielstraße kann trotzdem gelernt werden.")}}
 function gameSpeed(){let left=30,count=0,current=weightedStreet();$("gameBox").innerHTML=`<div class=quizbox><h3>⚡ 30-Sekunden-Challenge</h3><div style="font-size:32px;font-weight:900" id=timer>30</div><div style="font-size:22px;font-weight:800;margin:12px 0" id=speedStreet>${esc(current?.name||"")}</div><input id=speedInput placeholder="Ort eingeben …"><button id=speedBtn class=primary style="margin-top:8px">Antwort</button><div id=speedScore class=muted style="margin-top:8px">0 Treffer</div></div>`;const next=()=>{current=weightedStreet();$("speedStreet").textContent=current?.name||"";$("speedInput").value=""};const timer=setInterval(()=>{left--;if($("timer"))$("timer").textContent=left;if(left<=0){clearInterval(timer);alert(`Zeit! Ergebnis: ${count} Treffer.`);renderProgress()}},1000);$("speedBtn").onclick=()=>{if(!current)return;if($("speedInput").value.trim().toLowerCase()===current.place.toLowerCase()){count++;progress[current.id]=Math.min(100,score(current.id)+15);save()}$("speedScore").textContent=count+" Treffer";next()}}
 function gameWeak(){const weak=streets.filter(s=>score(s.id)<60).sort((a,b)=>score(a.id)-score(b.id));if(!weak.length){$("gameBox").innerHTML='<div class=success>🎉 Keine Straße unter 60%. Du hast alle aktuell gut trainiert.</div>';return}const s=weak[Math.floor(Math.random()*Math.min(weak.length,Math.max(1,Math.ceil(weak.length/2))))];$("gameBox").innerHTML=`<div class=quizbox><h3>🎯 Schwachstelle</h3><div style="font-size:25px;font-weight:900">${esc(s.name)}</div><p class=muted>${esc(s.place)} · Lernstand ${score(s.id)}%</p><button id=weakLearn class=primary>Diese Straße lernen</button></div>`;$("weakLearn").onclick=()=>learnStreet(s.id)}
-function gamePair(){const s=weightedStreet();if(!s)return;const near=streets.filter(x=>x.id!==s.id&&x.place===s.place).sort((a,b)=>{const ca=centroid(a.geometry),cb=centroid(b.geometry),cs=centroid(s.geometry);return distanceM(cs,ca)-distanceM(cs,cb)}).slice(0,4);$("gameBox").innerHTML=`<div class=quizbox><h3>Welche Straße liegt räumlich am nächsten?</h3><div style="font-size:23px;font-weight:900;margin:12px 0">${esc(s.name)}</div><div class=answers>${near.map(x=>`<button class=secondary data-id="${esc(x.id)}">${esc(x.name)}</button>`).join("")}</div></div>`;const correct=near[0];document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.id===correct?.id;if(ok){progress[s.id]=Math.min(100,score(s.id)+20);save()}alert(ok?"Richtig!":"Nicht ganz – räumlich am nächsten ist "+correct.name+".");renderProgress();gamePair()})}
+function gamePair(){const s=weightedStreet();if(!s)return;const near=streets.filter(x=>x.id!==s.id&&x.place===s.place).sort(()=>Math.random()-.5).slice(0,4);const correct=near[0];$("gameBox").innerHTML=`<div class=quizbox><h3>🔀 Gleicher Ort?</h3><div style="font-size:23px;font-weight:900;margin:12px 0">${esc(s.name)}</div><p class=muted>Welche der folgenden Straßen liegt ebenfalls im Ort ${esc(s.place)}?</p><div class=answers>${near.map(x=>`<button class=secondary data-id="${esc(x.id)}">${esc(x.name)}</button>`).join("")}</div></div>`;document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.id===correct?.id;if(ok){progress[s.id]=Math.min(100,score(s.id)+20);save()}alert(ok?"Richtig!":"Nicht ganz – die gesuchte Vergleichsstraße war "+(correct?.name||"")+".");renderProgress();gamePair()})}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));$("search").oninput=renderList;$("place").onchange=renderList;$("stationBtn").onclick=()=>{switchView("karte");map.setView([CONFIG.station.lat,CONFIG.station.lon],15);stationMarker.openPopup()};$("reloadMap").onclick=refreshData;$("resetProgress").onclick=()=>{if(confirm("Wirklich den kompletten Lernstand zurücksetzen?")){progress={};save();renderAll()}};$("exportProgress").onclick=()=>{const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),progress},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="strassenlernen-lernstand.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 document.querySelectorAll(".game").forEach(g=>g.onclick=()=>({quiz:gameQuiz,mapfind:gameMapFind,route:gameRoute,speed:gameSpeed,weak:gameWeak,pair:gamePair}[g.dataset.game])());$("gameBox").addEventListener("click",e=>{if(e.target.id==="routeShow")calculateRouteToStreet(selectedStreet)});
 initMap();loadData();
