@@ -1,4 +1,4 @@
-# Straßenlern-App – V2
+# Straßenlern-App – V3
 
 Installierbare Progressive Web App (PWA) für das definierte Einsatzgebiet rund um Pinneberg.
 
@@ -10,39 +10,22 @@ Installierbare Progressive Web App (PWA) für das definierte Einsatzgebiet rund 
 - Ellerbek
 - Bönningstedt
 - Hasloh
-- Halstenbek: nur nördlich der Bahnstrecke
 - Rellingen
-- Egenbüttel (Ortsteil von Rellingen; Lernbereich näherungsweise über Ortsteilzentrum)
+- Egenbüttel (Ortsteil-Zuordnung innerhalb Rellingen, näherungsweise)
 - Tangstedt (Kreis Pinneberg)
+- Halstenbek nur nördlich der Bahnstrecke
 
-Startpunkt: Polizeirevier Pinneberg, Elmshorner Straße 40.
+## V3 – wichtige Änderungen
+- Benannte Straßen werden beim ersten Start **gemeindeweise und vollständig** aus OpenStreetMap geladen.
+- Der Abruf läuft nacheinander mit sichtbarem Fortschritt statt mit mehreren großen parallelen Anfragen.
+- Drei Overpass-Datenquellen werden automatisch als Fallback versucht.
+- Der fertige Datensatz wird in IndexedDB auf dem Gerät gespeichert.
+- Beim nächsten Start werden die gespeicherten Daten sofort verwendet; ein erneuter Abruf startet nur über „OSM-Daten aktualisieren“.
+- Gemeindegrenzen und Bahnlinie blockieren den Straßenlern-Datensatz nicht mehr, falls eine einzelne Zusatzabfrage ausfällt.
+- Halstenbek wird anhand der geladenen Bahnlinie auf den nördlichen Bereich begrenzt.
+- Lernfortschritt, Suche, Karte, Spiele und Routing bleiben erhalten.
 
-## V2-Funktionen
-- OSM-Straßendaten über relationbasierte Overpass-Abfragen
-- mehrere Overpass-Fallback-Server
-- lokaler Datensatz-Cache nach erfolgreichem Laden
-- Gemeindegrenzen auf der Karte
-- Bahnstrecke auf der Karte
-- Halstenbek-Nordfilter
-- Straßenkarte mit Lernstandfarben
-- Suche und Ortsfilter
-- Lernfortschritt in localStorage
-- Export des Lernstands
-- Straßenquiz
-- Kartenquiz
-- Wache → Zielstraße mit OSRM
-- 30-Sekunden-Challenge
-- Schwachstellen-Training
-- räumliches Nachbarstraßen-Quiz
+## Hinweis
+Die Straßenabdeckung basiert auf den zum Abrufzeitpunkt in OpenStreetMap vorhandenen benannten Straßen. Sie ist damit eine OSM-Datengrundlage und kein amtliches polizeiliches Straßenverzeichnis.
 
-## Datenqualität
-Die App verwendet aktuelle OpenStreetMap-Daten. OSM ist eine offene Geodatenbank; Daten können sich ändern und einzelne Straßen können fehlen oder anders klassifiziert sein. Egenbüttel ist kein eigenständiges Gemeindegebiet, daher ist die Lernbereich-Zuordnung dort bewusst als Näherung gekennzeichnet. Die dienstlich verbindliche Zuständigkeits-/Reviergrenze muss bei Bedarf gegen die interne Karte geprüft werden.
-
-## GitHub Pages
-Die Dateien müssen im Repository-Root liegen. GitHub Pages: `Deploy from a branch` → `main` → `/(root)`.
-
-## iPhone
-Safari öffnen → Teilen → Zum Home-Bildschirm → Hinzufügen.
-
-## OSM
-Kartendaten © OpenStreetMap-Mitwirkende. OpenStreetMap-Daten stehen unter der Open Database License (ODbL). Attribution ist in der App enthalten.
+Kartendaten: © OpenStreetMap-Mitwirkende, ODbL.

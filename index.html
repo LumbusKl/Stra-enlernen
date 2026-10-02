@@ -32,17 +32,17 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 <section id="lernen" class="view active">
 <h2>Straßen lernen</h2><p class="sub">Alle benannten Straßen aus den definierten Einsatzgemeinden. Schwache Straßen werden in den Spielen häufiger gezogen.</p>
 <div class="filters"><input id="search" placeholder="Straße oder Ort suchen …"><select id="place"><option>Alle Orte</option></select></div><div id="chips" class="chips"></div>
-<div id="dataStatus" class="notice">Straßendaten werden geladen …</div><div id="streetList"></div>
+<div id="dataStatus" class="notice">Bereit. Beim ersten Start werden die vollständigen Straßendaten einmalig von OpenStreetMap geladen.</div><div id="streetList"></div>
 </section>
 <section id="karte" class="view">
-<h2>Einsatzgebiet-Karte</h2><p class="sub">Gemeindegrenzen, Straßen, Bahnlinie und Dienststelle. Halstenbek ist auf den Bereich nördlich der Bahnstrecke beschränkt.</p>
+<h2>Einsatzgebiet-Karte</h2><p class="sub">Gemeindegrenzen, Straßen, Bahnlinie und Dienststelle. Halstenbek wird auf den Bereich nördlich der Bahnstrecke begrenzt.</p>
 <div id="map"></div>
 <div class="legend"><span>🔵 unbekannt</span><span>🟡 in Training</span><span>🟢 sicher</span><span>⬛ Gemeindegrenze</span><span>🚆 Bahnlinie</span></div>
-<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ Daten aktualisieren</button></div>
+<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ OSM-Daten aktualisieren</button></div>
 <div id="mapStatus" class="small"></div>
 </section>
 <section id="spiele" class="view">
-<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben verwenden dieselben OSM-Straßen wie die Lernliste.</p>
+<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben verwenden denselben gespeicherten OSM-Straßendatensatz wie die Lernliste.</p>
 <div class="game-grid">
 <div class="card game" data-game="quiz"><h3>🧠 Straßen-Quiz</h3><p>Welche Gemeinde gehört zur Straße?</p></div>
 <div class="card game" data-game="mapfind"><h3>🗺️ Wo liegt die Straße?</h3><p>Merke dir die Lage und blende die Straße danach ein.</p></div>
@@ -85,49 +85,77 @@ function renderPlaces(){const places=uniquePlaces();$("place").innerHTML='<optio
 function renderList(){const q=$("search").value.trim().toLowerCase(),p=$("place").value;const arr=streets.filter(s=>(p==="Alle Orte"||s.place===p)&&(!q||s.name.toLowerCase().includes(q)||s.place.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,"de")||a.place.localeCompare(b.place,"de"));$("streetList").innerHTML=arr.length?arr.map(s=>`<div class="card street-row"><div class="grow"><div class="street">${esc(s.name)}</div><div class="muted">${esc(s.place)} · ${s.segments} Kartenabschnitte${s.approx?" · Ortsteil-Zuordnung näherungsweise":""}</div><div class="progressbar"><i style="width:${score(s.id)}%"></i></div></div><span class="pill ${cls(score(s.id))}">${score(s.id)}%</span><button class="secondary learn" data-id="${esc(s.id)}">Lernen</button></div>`).join(""):"<div class=\"card\">Keine Treffer.</div>";document.querySelectorAll(".learn").forEach(b=>b.onclick=()=>learnStreet(b.dataset.id))}
 function learnStreet(id){const s=streets.find(x=>x.id===id);if(!s)return;progress[id]=Math.min(100,score(id)+20);save();renderList();renderProgress();if(map)focusStreet(s);}
 function renderProgress(){const known=streets.filter(s=>score(s.id)>=80).length,avg=streets.length?Math.round(streets.reduce((a,s)=>a+score(s.id),0)/streets.length):0;$("statKnown").textContent=known;$("statTotal").textContent=streets.length;$("statPercent").textContent=avg+"%";$("statAreas").textContent=uniquePlaces().length;$("progressList").innerHTML=uniquePlaces().map(p=>{const a=streets.filter(s=>s.place===p),v=a.length?Math.round(a.reduce((x,s)=>x+score(s.id),0)/a.length):0;return `<div class="card"><b>${esc(p)}</b><div class="muted">${a.length} Straßen · Ø ${v}%</div><div class="progressbar"><i style="width:${v}%"></i></div></div>`}).join("")}
-async function fetchOverpass(query){let last;for(const endpoint of CONFIG.overpassEndpoints){try{const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),150000);const r=await fetch(endpoint+"?data="+encodeURIComponent(query),{signal:ctrl.signal,headers:{Accept:"application/json"}});clearTimeout(tm);if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return j}catch(e){last=e}}throw last||new Error("Overpass nicht erreichbar")}
-function areaIds(){return CONFIG.areas.map(a=>3600000000+a.rel)}
+function setLoadStatus(msg, error=false){const el=$("dataStatus");el.classList.toggle("error",!!error);el.innerHTML=msg}
+async function fetchOverpass(query, label="OSM-Daten"){
+  let last;
+  for(let i=0;i<CONFIG.overpassEndpoints.length;i++){
+    const endpoint=CONFIG.overpassEndpoints[i];
+    try{
+      setLoadStatus(`${esc(label)}<br><span class="small">Datenquelle ${i+1}/${CONFIG.overpassEndpoints.length} · Anfrage läuft …</span>`);
+      const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),65000);
+      const r=await fetch(endpoint+"?data="+encodeURIComponent(query),{signal:ctrl.signal,headers:{Accept:"application/json"},cache:"no-store"});
+      clearTimeout(tm);
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const j=await r.json();
+      return j;
+    }catch(e){last=e}
+  }
+  throw last||new Error("Overpass nicht erreichbar");
+}
+function roadQueryForArea(a){
+  const areaId=3600000000+a.rel;
+  return `[out:json][timeout:120];way(area:${areaId})["highway"]["name"];out geom;`;
+}
 async function loadAllOSM(){
- const areaChunks=[];
- for(let i=0;i<CONFIG.areas.length;i+=4) areaChunks.push(CONFIG.areas.slice(i,i+4));
- const roadResults=[];
- for(const chunk of areaChunks){
-   const parts=chunk.map(a=>`way(area:${3600000000+a.rel})["highway"]["name"]`);
-   const q=`[out:json][timeout:180];(${parts.join(';')};);out geom;`;
-   const j=await fetchOverpass(q);
-   roadResults.push({chunk,j});
- }
- const roads=[];
- for(const {chunk,j} of roadResults){
-   for(const e of j.elements||[]){
-     if(e.type!=="way"||!e.tags?.name||!e.geometry?.length||!ROAD_TYPES.includes(e.tags.highway))continue;
-     const area=chunk.find(a=>true);
-     roads.push({e});
-   }
- }
- const boundaryQuery=`[out:json][timeout:120];rel(id:${CONFIG.areas.map(a=>a.rel).join(",")});out geom;`;
- const railwayQuery=`[out:json][timeout:90];rel(id:7669536);out geom;`;
- const [bounds,rail]=await Promise.all([fetchOverpass(boundaryQuery),fetchOverpass(railwayQuery)]);
- const polys=parseBoundaries(bounds.elements||[]);
- const grouped=new Map();
- // Assign each road to a municipality by testing its centroid against the fetched boundaries.
- for(const {e} of roads){
-   const c=centroid(e.geometry); if(!c) continue;
-   let area=CONFIG.areas.find(a=>polys.some(b=>b.rel===a.rel&&insideBoundary(c,b)));
-   if(!area) continue;
-   const key=area.name+"|"+e.tags.name;
-   if(grouped.has(key)){const old=grouped.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}
-   else grouped.set(key,{id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway});
- }
- streets=[...grouped.values()];
- for(const s of streets){
-   if(s.place!=="Rellingen")continue;
-   const c=centroid(s.geometry);
-   if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}
- }
- boundaries=polys; railway=extractRailwayGeometry(rail); applyHalstenbekFilter(); saveDatasetCache();
- const timestamps=roadResults.map(x=>x.j.osm3s?.timestamp_osm_base).filter(Boolean);
- return {timestamp:timestamps.sort().slice(-1)[0]||new Date().toISOString()};
+  const allWays=[]; const timestamps=[];
+  for(let i=0;i<CONFIG.areas.length;i++){
+    const area=CONFIG.areas[i];
+    setLoadStatus(`<b>OSM-Daten werden geladen …</b><br>${i+1}/${CONFIG.areas.length}: <b>${esc(area.name)}</b><br><span class="small">Vollständige benannte Straßen werden nacheinander geladen. Bitte die App nicht schließen.</span>`);
+    const j=await fetchOverpass(roadQueryForArea(area),area.name);
+    timestamps.push(j.osm3s?.timestamp_osm_base);
+    for(const e of j.elements||[]){
+      if(e.type!=="way"||!e.tags?.name||!e.geometry?.length||!ROAD_TYPES.includes(e.tags.highway))continue;
+      allWays.push({e,area});
+    }
+  }
+  setLoadStatus(`<b>Straßen geladen.</b><br>${allWays.length.toLocaleString("de-DE")} Kartenabschnitte gefunden.<br><span class="small">Grenzen und Bahnlinie werden separat geladen …</span>`);
+
+  const grouped=new Map();
+  for(const {e,area} of allWays){
+    const key=area.name+"|"+e.tags.name;
+    if(grouped.has(key)){const old=grouped.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}
+    else grouped.set(key,{id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway});
+  }
+  streets=[...grouped.values()];
+  for(const s of streets){
+    if(s.place!=="Rellingen")continue;
+    const c=centroid(s.geometry);
+    if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}
+  }
+
+  // Railway inside Halstenbek is queried independently. This prevents a failed boundary request from blocking the street list.
+  try{
+    const h=CONFIG.areas.find(a=>a.name==="Halstenbek");
+    const rq=`[out:json][timeout:90];way(area:${3600000000+h.rel})[railway="rail"];out geom;`;
+    const rj=await fetchOverpass(rq,"Bahnlinie Halstenbek");
+    railway=extractRailwayGeometry(rj);
+    applyHalstenbekFilter();
+  }catch(e){
+    railway=[];
+    streets=streets.filter(s=>s.place!=="Halstenbek");
+    setLoadStatus(`<b>Straßen geladen, Halstenbek vorläufig ausgelassen.</b><br>Die Bahnlinie konnte nicht geladen werden. Bitte später „OSM-Daten aktualisieren“ ausführen, damit der nördliche Halstenbek-Bereich korrekt ergänzt wird.`);
+  }
+
+  // Boundaries are useful for the map but are not allowed to block learning data.
+  try{
+    const q=`[out:json][timeout:120];rel(id:${CONFIG.areas.map(a=>a.rel).join(",")});out geom;`;
+    const bounds=await fetchOverpass(q,"Gemeindegrenzen");
+    boundaries=parseBoundaries(bounds.elements||[]);
+  }catch(e){boundaries=[]}
+
+  await saveDatasetCache();
+  const validTimestamps=timestamps.filter(Boolean);
+  return {timestamp:validTimestamps.sort().slice(-1)[0]||new Date().toISOString()};
 }
 function parseBoundaries(elements){const out=[];for(const rel of elements){const a=CONFIG.areas.find(x=>x.rel===rel.id);if(!a||!rel.members)continue;const members=rel.members.filter(m=>m.type==="way"&&m.role==="outer"&&m.geometry?.length);out.push({name:a.name,rel:a.rel,members});}return out}
 function pointInRing(pt,ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i].lon,yi=ring[i].lat,xj=ring[j].lon,yj=ring[j].lat;const intersect=((yi>pt.lat)!==(yj>pt.lat))&&(pt.lon<(xj-xi)*(pt.lat-yi)/(yj-yi)+xi);if(intersect)inside=!inside}return inside}
@@ -140,14 +168,16 @@ function classifyRoads(ways,bounds){const mapByKey=new Map();for(const e of ways
 function extractRailwayGeometry(j){const out=[];for(const rel of j.elements||[]){for(const m of rel.members||[]){if(m.type==="way"&&m.geometry?.length)out.push(m.geometry)}}return out}
 function railLatAtLon(seg,lon){for(let i=1;i<seg.length;i++){const a=seg[i-1],b=seg[i];if((lon>=Math.min(a.lon,b.lon)&&lon<=Math.max(a.lon,b.lon))&&Math.abs(b.lon-a.lon)>1e-9){const t=(lon-a.lon)/(b.lon-a.lon);return a.lat+t*(b.lat-a.lat)}}return seg[Math.floor(seg.length/2)]?.lat??0}
 function applyHalstenbekFilter(){if(!railway.length)return;streets=streets.filter(s=>{if(s.place!=="Halstenbek")return true;const c=centroid(s.geometry);if(!c)return false;let best=Infinity,railLat=0;for(const seg of railway){for(let i=1;i<seg.length;i++){const a=seg[i-1],b=seg[i];const dx=(b.lon-a.lon)*Math.cos(c.lat*Math.PI/180),dy=b.lat-a.lat;const px=(c.lon-a.lon)*Math.cos(c.lat*Math.PI/180),py=c.lat-a.lat;const len=dx*dx+dy*dy||1;let t=(px*dx+py*dy)/len;t=Math.max(0,Math.min(1,t));const x=a.lon+(b.lon-a.lon)*t,y=a.lat+(b.lat-a.lat)*t;const d=(x-c.lon)**2+(y-c.lat)**2;if(d<best){best=d;railLat=y}}}return c.lat>railLat+0.00003})}
-function datasetKey(){return "streetDatasetV2"}
-function saveDatasetCache(){try{localStorage.setItem(datasetKey(),JSON.stringify({streets,boundaries,railway,savedAt:new Date().toISOString()}))}catch(e){console.warn("Cache zu groß",e)}}
-function loadDatasetCache(){try{const x=JSON.parse(localStorage.getItem(datasetKey())||"null");if(x?.streets?.length){streets=x.streets;boundaries=x.boundaries||[];railway=x.railway||[];return true}}catch(e){}return false}
+function datasetKey(){return "streetDatasetV3"}
+function openDatasetDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open("StrassenlernenDB",1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("dataset"))req.result.createObjectStore("dataset")};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function saveDatasetCache(){try{const db=await openDatasetDB();await new Promise((resolve,reject)=>{const tx=db.transaction("dataset","readwrite");tx.objectStore("dataset").put({streets,boundaries,railway,savedAt:new Date().toISOString()},datasetKey());tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close()}catch(e){console.warn("IndexedDB Cache konnte nicht gespeichert werden",e)}}
+async function loadDatasetCache(){try{const db=await openDatasetDB();const x=await new Promise((resolve,reject)=>{const tx=db.transaction("dataset","readonly");const r=tx.objectStore("dataset").get(datasetKey());r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});db.close();if(x?.streets?.length){streets=x.streets;boundaries=x.boundaries||[];railway=x.railway||[];return x}}catch(e){}return null}
 async function loadData(){
- $("dataStatus").textContent="Lade vollständige Straßen- und Grenzdaten von OpenStreetMap …";$("dataStatus").classList.remove("error");
- if(loadDatasetCache()){renderAll();$("dataStatus").textContent=`Gespeicherter Datensatz geladen: ${streets.length} Straßen-Gruppen. Aktualisiere bei Bedarf über „Daten aktualisieren“.`;setTimeout(refreshData,150);return}
- try{const info=await loadAllOSM();renderAll();$("dataStatus").textContent=`${streets.length} Straßen-Gruppen geladen · OSM-Datenstand ${new Date(info.timestamp).toLocaleString("de-DE")}.`;}
- catch(e){$("dataStatus").classList.add("error");$("dataStatus").innerHTML=`<b>Straßendaten konnten nicht geladen werden.</b><br>Bitte Internetverbindung prüfen und „Erneut versuchen“ drücken.<br><button id="retry" class="primary" style="margin-top:8px">↻ Erneut versuchen</button>`;$("retry").onclick=loadData;renderAll();}
+  setLoadStatus("<b>Prüfe gespeicherte Straßendaten …</b><br><span class=\"small\">Wenn bereits ein vollständiger Datensatz vorhanden ist, wird er sofort verwendet.</span>");
+  const cached=await loadDatasetCache();
+  if(cached){renderAll();setLoadStatus(`<b>Gespeicherter vollständiger Datensatz geladen.</b><br>${streets.length.toLocaleString("de-DE")} Straßen-Gruppen · gespeichert ${new Date(cached.savedAt).toLocaleString("de-DE")}<br><span class="small">Für einen neuen OSM-Stand bitte „OSM-Daten aktualisieren“ verwenden.</span>`);return}
+  try{const info=await loadAllOSM();renderAll();setLoadStatus(`<b>Fertig.</b><br>${streets.length.toLocaleString("de-DE")} Straßen-Gruppen aus dem definierten Einsatzgebiet geladen.<br><span class="small">OSM-Datenstand ${new Date(info.timestamp).toLocaleString("de-DE")}</span>`)}
+  catch(e){console.error(e);setLoadStatus(`<b>Straßendaten konnten nicht vollständig geladen werden.</b><br><span class="small">${esc(e?.message||"Unbekannter Fehler")}</span><br><button id="retry" class="primary" style="margin-top:8px">↻ Erneut versuchen</button>`,true);renderAll();$("retry").onclick=loadData}
 }
 async function refreshData(){try{const info=await loadAllOSM();renderAll();$("dataStatus").textContent=`Aktualisiert: ${streets.length} Straßen-Gruppen · ${new Date(info.timestamp).toLocaleString("de-DE")}`;}catch(e){$("mapStatus").textContent="Aktualisierung momentan nicht möglich – der letzte gespeicherte Datensatz bleibt aktiv."}}
 function renderAll(){renderPlaces();renderList();renderProgress();drawMap();}
