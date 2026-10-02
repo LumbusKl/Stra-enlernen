@@ -88,18 +88,21 @@ function renderProgress(){const known=streets.filter(s=>score(s.id)>=80).length,
 async function fetchOverpass(query){let last;for(const endpoint of CONFIG.overpassEndpoints){try{const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),150000);const r=await fetch(endpoint+"?data="+encodeURIComponent(query),{signal:ctrl.signal,headers:{Accept:"application/json"}});clearTimeout(tm);if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return j}catch(e){last=e}}throw last||new Error("Overpass nicht erreichbar")}
 function areaIds(){return CONFIG.areas.map(a=>3600000000+a.rel)}
 async function loadAllOSM(){
- const roadPromises=CONFIG.areas.map(async area=>{
-   const aid=3600000000+area.rel;
-   const q=`[out:json][timeout:120];way(area:${aid})["highway"]["name"];out geom;`;
+ const areaChunks=[];
+ for(let i=0;i<CONFIG.areas.length;i+=4) areaChunks.push(CONFIG.areas.slice(i,i+4));
+ const roadResults=[];
+ for(const chunk of areaChunks){
+   const parts=chunk.map(a=>`way(area:${3600000000+a.rel})["highway"]["name"]`);
+   const q=`[out:json][timeout:180];(${parts.join(';')};);out geom;`;
    const j=await fetchOverpass(q);
-   return {area,j};
- });
- const roadResults=await Promise.all(roadPromises);
+   roadResults.push({chunk,j});
+ }
  const roads=[];
- for(const {area,j} of roadResults){
+ for(const {chunk,j} of roadResults){
    for(const e of j.elements||[]){
      if(e.type!=="way"||!e.tags?.name||!e.geometry?.length||!ROAD_TYPES.includes(e.tags.highway))continue;
-     roads.push({area,e});
+     const area=chunk.find(a=>true);
+     roads.push({e});
    }
  }
  const boundaryQuery=`[out:json][timeout:120];rel(id:${CONFIG.areas.map(a=>a.rel).join(",")});out geom;`;
@@ -107,7 +110,11 @@ async function loadAllOSM(){
  const [bounds,rail]=await Promise.all([fetchOverpass(boundaryQuery),fetchOverpass(railwayQuery)]);
  const polys=parseBoundaries(bounds.elements||[]);
  const grouped=new Map();
- for(const {area,e} of roads){
+ // Assign each road to a municipality by testing its centroid against the fetched boundaries.
+ for(const {e} of roads){
+   const c=centroid(e.geometry); if(!c) continue;
+   let area=CONFIG.areas.find(a=>polys.some(b=>b.rel===a.rel&&insideBoundary(c,b)));
+   if(!area) continue;
    const key=area.name+"|"+e.tags.name;
    if(grouped.has(key)){const old=grouped.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}
    else grouped.set(key,{id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway});
@@ -118,9 +125,7 @@ async function loadAllOSM(){
    const c=centroid(s.geometry);
    if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}
  }
- boundaries=polys; railway=extractRailwayGeometry(rail);
- applyHalstenbekFilter();
- saveDatasetCache();
+ boundaries=polys; railway=extractRailwayGeometry(rail); applyHalstenbekFilter(); saveDatasetCache();
  const timestamps=roadResults.map(x=>x.j.osm3s?.timestamp_osm_base).filter(Boolean);
  return {timestamp:timestamps.sort().slice(-1)[0]||new Date().toISOString()};
 }
