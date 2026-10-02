@@ -1,21 +1,5 @@
 {
-  "version":"2.0",
+  "name":"Straßenlernen V5",
   "station":{"name":"Polizeirevier Pinneberg","address":"Elmshorner Straße 40, 25421 Pinneberg","lat":53.666836,"lon":9.794725},
-  "areas":[
-    {"name":"Pinneberg","osm_relation":443487,"scope":"complete"},
-    {"name":"Kummerfeld","osm_relation":443359,"scope":"complete"},
-    {"name":"Prisdorf","osm_relation":443358,"scope":"complete"},
-    {"name":"Borstel-Hohenraden","osm_relation":443731,"scope":"complete"},
-    {"name":"Ellerbek","osm_relation":443703,"scope":"complete"},
-    {"name":"Bönningstedt","osm_relation":443704,"scope":"complete"},
-    {"name":"Hasloh","osm_relation":443705,"scope":"complete"},
-    {"name":"Halstenbek","osm_relation":443486,"scope":"north_of_railway"},
-    {"name":"Rellingen","osm_relation":443755,"scope":"complete"},
-    {"name":"Egenbüttel","scope":"Ortsteil von Rellingen","approximation":{"center_lat":53.65257,"center_lon":9.85186,"radius_m":1800}},
-    {"name":"Tangstedt (Kreis Pinneberg)","osm_relation":443706,"scope":"complete"}
-  ],
-  "railway_relation":7669536,
-  "data_source":"OpenStreetMap / Overpass API",
-  "routing":"OSRM demo router",
-  "notes":["Egenbüttel ist ein Ortsteil von Rellingen und wird für Lernzwecke näherungsweise über einen Ortsteilradius gruppiert.","Halstenbek wird anhand der OSM-Bahngeometrie auf den Bereich nördlich der Bahnstrecke beschränkt. Für dienstlich verbindliche Reviergrenzen ist die interne Zuständigkeitskarte maßgeblich."]
+  "areas":["Pinneberg","Kummerfeld","Prisdorf","Borstel-Hohenraden","Ellerbek","Bönningstedt","Hasloh","Halstenbek (nur nördlich der Bahnlinie)","Rellingen","Egenbüttel","Tangstedt (Kreis Pinneberg)"]
 }
