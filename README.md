@@ -1,14 +1,11 @@
-# Straßenlernen V5.1
+# Straßenlernen V5.4
 
 PWA für das definierte Einsatzgebiet rund um Pinneberg.
 
-Neu in V5:
-- Karte leeren: temporäre Straßenmarker und Routen entfernen, Wachenmarker bleibt.
-- Ortsgrenzen als Umrisse auf der Karte; außerhalb des geladenen Einsatzgebiets graue Fläche.
-- Spiel „Straße auf leerer Karte“: Straßenname anzeigen, Punkt auf einer Karte ohne Straßennamen setzen, danach echte Lage und Entfernung anzeigen.
-- Straßenbestand wird weiterhin lokal gespeichert.
-
-Einsatzgebiet: Pinneberg, Kummerfeld, Prisdorf, Borstel-Hohenraden, Ellerbek, Bönningstedt, Hasloh, Halstenbek nur nördlich der Bahnlinie, Rellingen, Egenbüttel und Tangstedt (Kreis Pinneberg).
-
-
-V5.1: Der Übungsmodus „Straße auf leerer Karte“ verwendet eine echte Basiskarte ohne Straßen-/Ortsnamen. Der Tile-Dienst besitzt einen Fallback, falls der primäre Dienst nicht erreichbar ist.
+Neu in V5.4:
+- 30-Sekunden-Challenge mit laufendem Richtig/Falsch-Balken.
+- Während des Spiels werden Treffer und Fehler live angezeigt.
+- Nach Ablauf der 30 Sekunden erscheint eine vollständige Ergebnisübersicht mit jeder beantworteten Straße, eigener Antwort und richtiger Lösung bei Fehlern.
+- Trefferquote und Anzahl richtig/falsch werden zusammengefasst.
+- Neuer Button „Neustart“ startet die Challenge direkt erneut.
+- Service-Worker-Cache auf V5.4 angehoben.

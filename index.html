@@ -7,7 +7,9 @@
 <meta name="description" content="Straßenlern-App für das Einsatzgebiet Pinneberg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<title>Straßenlernen V5 – Einsatzgebiet Pinneberg</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.js"></script>
+<title>Straßenlernen V5.4 – Einsatzgebiet Pinneberg</title>
 <style>
 :root{--navy:#17324d;--blue:#2367a5;--bg:#f3f5f7;--card:#fff;--text:#16202a;--muted:#66727e;--border:#dce2e7;--good:#218739;--warn:#c58a00;--bad:#c13c32;--purple:#6d45b5}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
@@ -18,13 +20,14 @@ input,select,button{font:inherit}input,select{width:100%;padding:13px;border:1px
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:8px 0}.street-row{display:flex;align-items:center;gap:10px}.street-row .grow{flex:1;min-width:0}.street{font-weight:800;font-size:16px}.muted{color:var(--muted);font-size:13px}.pill{font-size:12px;border-radius:20px;padding:5px 8px;background:#edf0f2;white-space:nowrap}.green{background:#e4f3e7;color:#176d2a}.yellow{background:#fff2cc;color:#815d00}.red{background:#fde5e2;color:#963128}.purple{background:#eee7fb;color:#5d379e}
 .primary{border:0;background:var(--blue);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800}.secondary{border:1px solid var(--border);background:#fff;padding:11px 13px;border-radius:12px;font-weight:700}.danger{border:1px solid #e4b1ad;background:#fff4f3;color:#963128;padding:11px 13px;border-radius:12px;font-weight:700}
 #map,#gameMap{height:59vh;min-height:430px;border-radius:16px;border:1px solid var(--border);overflow:hidden}.mapbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}.legend{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}.legend span{font-size:12px;padding:6px 9px;border-radius:12px;background:#fff;border:1px solid var(--border)}
-.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.game{cursor:pointer;min-height:125px}.game h3{margin:0 0 6px}.game p{margin:0;color:var(--muted);font-size:13px}.quizbox{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:12px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.answers button{text-align:left}.progressbar{height:8px;background:#e6eaed;border-radius:20px;overflow:hidden;margin-top:8px}.progressbar i{display:block;height:100%;background:#218739}.notice{background:#fff8df;border:1px solid #ead58d;padding:12px;border-radius:13px;color:#665400;font-size:13px}.notice.error{background:#fff0ee;border-color:#e4aaa5;color:#7c2821}.success{background:#edf8ef;border:1px solid #b9ddbf;padding:12px;border-radius:13px;color:#176d2a;font-size:13px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px}.stat b{display:block;font-size:21px}.stat span{font-size:12px;color:var(--muted)}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.small{font-size:12px;color:var(--muted)}.tablelike{display:grid;gap:6px}.row{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}.row b{min-width:0}.row span{color:var(--muted);font-size:12px}
+.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.game{cursor:pointer;min-height:125px}.game h3{margin:0 0 6px}.game p{margin:0;color:var(--muted);font-size:13px}.quizbox{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:12px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.answers button{text-align:left}.progressbar{height:8px;background:#e6eaed;border-radius:20px;overflow:hidden;margin-top:8px}.progressbar i{display:block;height:100%;background:#218739}.notice{background:#fff8df;border:1px solid #ead58d;padding:12px;border-radius:13px;color:#665400;font-size:13px}.notice.error{background:#fff0ee;border-color:#e4aaa5;color:#7c2821}.success{background:#edf8ef;border:1px solid #b9ddbf;padding:12px;border-radius:13px;color:#176d2a;font-size:13px}.speed-summary{margin-top:10px}.speed-bar{display:flex;width:100%;height:14px;background:#fde5e2;border-radius:999px;overflow:hidden}.speed-bar i{display:block;height:100%;width:0;background:var(--good);transition:width .2s}.speed-bar b{display:block;height:100%;width:0;background:var(--bad);transition:width .2s}.speed-counts{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:13px;font-weight:800}.speed-final{display:flex;align-items:center;gap:14px;margin:12px 0}.speed-final-number{font-size:42px;font-weight:900;line-height:1}.speed-results{display:grid;gap:7px}.speed-result-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px;border-radius:12px;border:1px solid var(--border)}.speed-result-row>span{font-size:12px;font-weight:900;white-space:nowrap}.speed-result-good{background:#edf8ef;border-color:#b9ddbf}.speed-result-good>span{color:var(--good)}.speed-result-bad{background:#fff0ee;border-color:#e4aaa5}.speed-result-bad>span{color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px}.stat b{display:block;font-size:21px}.stat span{font-size:12px;color:var(--muted)}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.small{font-size:12px;color:var(--muted)}.tablelike{display:grid;gap:6px}.row{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}.row b{min-width:0}.row span{color:var(--muted);font-size:12px}
 footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:8px;text-align:center;font-size:11px;color:var(--muted);z-index:1000}.leaflet-tooltip{font-weight:700}.place-outline{fill:none;stroke:#6f7c87;stroke-width:2;stroke-dasharray:6 4;pointer-events:none}.outside-mask{fill:#9aa4ad;fill-opacity:.30;stroke:none;pointer-events:none}.place-label{background:#eef1f3;border:1px solid #7d8a96;color:#33424e;border-radius:8px;padding:3px 6px;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,.15)}.boundary-label{background:#fff;border:1px solid #7d8a96;color:#33424e;border-radius:8px;padding:3px 6px;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,.15)}
 @media(max-width:650px){.filters,.game-grid,.answers,.two{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}#map,#gameMap{height:55vh;min-height:360px}.street-row{align-items:flex-start}.street-row .pill{display:none}}
 </style>
 </head>
 <body>
-<header><h1>🚓 Straßenlernen V5</h1><p>Einsatzgebiet Pinneberg · Lern-, Karten- und Routen-App</p></header>
+<header><h1>🚓 Straßenlernen V5.4</h1><p>Einsatzgebiet Pinneberg · Lern-, Karten- und Routen-App</p></header>
 <nav>
 <button class="active" data-view="lernen">📚 Lernen</button><button data-view="karte">🗺️ Karte</button><button data-view="spiele">🎮 Spiele</button><button data-view="fortschritt">📈 Fortschritt</button>
 </nav>
@@ -116,7 +119,7 @@ function drawBoundaries(){
     for(const ring of b.rings){group.push(L.polygon(ring,{className:"place-outline",color:"#66737f",weight:2,fill:false,interactive:false}));all.push(...ring)}
     const pts=b.rings.flat();if(pts.length){const lat=pts.reduce((a,p)=>a+p[0],0)/pts.length,lon=pts.reduce((a,p)=>a+p[1],0)/pts.length;group.push(L.marker([lat,lon],{interactive:false,icon:L.divIcon({className:"place-label",html:esc(b.name),iconSize:null})}))}
   }
-  if(all.length){const latMin=Math.min(...all.map(p=>p[0]))-.15,latMax=Math.max(...all.map(p=>p[0]))+.15,lonMin=Math.min(...all.map(p=>p[1]))-.22,lonMax=Math.max(...all.map(p=>p[1]))+.22;group.unshift(L.rectangle([[latMin,lonMin],[latMax,lonMax]],{className:"outside-mask",color:"none",fill:true,fillColor:"#9aa4ad",fillOpacity:.30,interactive:false}))}
+  if(all.length){const latMin=Math.min(...all.map(p=>p[0]))-.15,latMax=Math.max(...all.map(p=>p[0]))+.15,lonMin=Math.min(...all.map(p=>p[1]))-.22,lonMax=Math.max(...all.map(p=>p[1]))+.22;const outer=[[latMin,lonMin],[latMin,lonMax],[latMax,lonMax],[latMax,lonMin]];const holes=[];for(const b of boundaries){for(const ring of b.rings){if(ring.length>=3)holes.push(ring)}}group.unshift(L.polygon([outer,...holes],{className:"outside-mask",color:"none",fill:true,fillColor:"#9aa4ad",fillOpacity:.30,interactive:false}))}
   boundaryLayer=L.layerGroup(group).addTo(map);boundaryLayer.bringToBack();if(mapLayer)mapLayer.bringToFront();if(stationMarker)stationMarker.bringToFront();if(routeLayer)routeLayer.bringToFront();
 }
 async function loadAllOSM(){const out=[],errors=[];for(let i=0;i<CONFIG.areas.length;i++){const area=CONFIG.areas[i];try{const rows=await loadOpenPLZArea(area);out.push(...rows);const expected=EXPECTED_COUNTS[area.name];if(expected&&rows.length!==expected)errors.push(`${area.name}: ${rows.length} statt Referenz ${expected}`);setLoadStatus(`<b>${i+1}/${CONFIG.areas.length} Orte geladen ✓</b><br>${esc(area.name)}: <b>${rows.length}</b> Straßen<br><span class="small">Gesamt bisher: ${out.length.toLocaleString("de-DE")}</span>`)}catch(e){errors.push(`${area.name}: ${e?.message||"Fehler"}`)}}if(!out.length)throw new Error("OpenPLZ konnte keinen Straßendatensatz liefern.");streets=out;boundaries=[];railway=[];await saveDatasetCache();loadBoundaries().catch(()=>{});const note=errors.length?`<br><span class="small">Hinweise: ${errors.map(esc).join(" · ")}</span>`:"";return {timestamp:new Date().toISOString(),note}}
@@ -137,23 +140,33 @@ function gameMapFind(){const s=weightedStreet();if(!s)return;selectedStreet=s;$(
 function gameRoute(){const s=weightedStreet();if(!s)return;selectedStreet=s;$("gameBox").innerHTML=`<div class=quizbox><h3>🚓 Wache → ${esc(s.name)}</h3><p>Start: ${esc(CONFIG.station.address)}</p><p><b>Aufgabe:</b> Beschreibe den Fahrtweg aus dem Kopf. Erst danach die Route prüfen.</p><button id=routeShow class=primary>Route anzeigen</button></div>`}
 async function calculateRouteToStreet(s){if(!s)return;try{const end=await geocodeStreet(s);const url=`${CONFIG.router}/${CONFIG.station.lon},${CONFIG.station.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;const r=await fetch(url);if(!r.ok)throw 0;const j=await r.json();if(!j.routes?.length)throw 0;const rt=j.routes[0];switchView("karte");setTimeout(()=>{if(routeLayer)map.removeLayer(routeLayer);routeLayer=L.geoJSON(rt.geometry,{style:{color:"#d13d2f",weight:6}}).addTo(map);map.fitBounds(routeLayer.getBounds(),{padding:[30,30]});alert(`Route zur ${s.name}: ${Math.round(rt.distance/100)/10} km · ca. ${Math.round(rt.duration/60)} min.`)},80)}catch{alert("Kartensuche oder Routing momentan nicht erreichbar. Die Zielstraße kann trotzdem gelernt werden.")}}
 function initPointGameMap(){
-  const el=$("gameMap");if(!el)return;if(pointGameMap){pointGameMap.remove();pointGameMap=null}
-  pointGameMap=L.map(el,{zoomControl:true,attributionControl:true}).setView([53.66,9.84],11.5);
-  // Basemap ohne Orts-/Straßennamen. Erst den klassischen CARTO-CDN-Endpunkt
-  // verwenden, weil die aktuelle basemaps.cartocdn.com-API inzwischen einen
-  // API-Key verlangen kann. Bei Tile-Fehler automatisch auf die zweite URL wechseln.
-  let pointTiles; let fallbackUsed=false;
-  const addPointTiles=(url)=>{
-    pointTiles=L.tileLayer(url,{maxZoom:19,subdomains:"abcd",attribution:"© OpenStreetMap-Mitwirkende © CARTO"}).addTo(pointGameMap);
-    pointTiles.on("tileerror",()=>{
-      if(fallbackUsed)return;
-      fallbackUsed=true;
-      try{pointGameMap.removeLayer(pointTiles)}catch(e){}
-      addPointTiles("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png");
-    });
-  };
-  addPointTiles("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png");
-  pointGameMap.on("click",e=>{pointGameGuess={lat:e.latlng.lat,lon:e.latlng.lng};if(pointGameGuessMarker)pointGameMap.removeLayer(pointGameGuessMarker);pointGameGuessMarker=L.marker(e.latlng).addTo(pointGameMap).bindPopup("Dein Punkt").openPopup();$("pointReveal").disabled=false;$("pointStatus").textContent="Punkt gesetzt. Wenn du sicher bist, tippe auf Auflösen."});
+  const el=$("gameMap");if(!el)return;
+  if(pointGameMap){try{pointGameMap.remove()}catch(e){}pointGameMap=null}
+  pointGameMap=new maplibregl.Map({
+    container:el,
+    style:"https://tiles.openfreemap.org/styles/liberty",
+    center:[9.84,53.66],
+    zoom:11.5,
+    attributionControl:false
+  });
+  pointGameMap.addControl(new maplibregl.NavigationControl({showCompass:true}),"top-left");
+  pointGameMap.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:"© OpenFreeMap © OpenMapTiles Data from OpenStreetMap"}),"bottom-right");
+  pointGameMap.on("load",()=>{
+    // Keep the full-color map, but remove all text/icon symbol layers.
+    const layers=pointGameMap.getStyle()?.layers||[];
+    for(const layer of layers){
+      if(layer.type==="symbol"){
+        try{pointGameMap.setLayoutProperty(layer.id,"visibility","none")}catch(e){}
+      }
+    }
+  });
+  pointGameMap.on("click",e=>{
+    pointGameGuess={lat:e.lngLat.lat,lon:e.lngLat.lng};
+    if(pointGameGuessMarker){try{pointGameGuessMarker.remove()}catch(e){}}
+    pointGameGuessMarker=new maplibregl.Marker({color:"#2367a5"}).setLngLat([e.lngLat.lng,e.lngLat.lat]).addTo(pointGameMap);
+    $("pointReveal").disabled=false;
+    $("pointStatus").textContent="Punkt gesetzt. Wenn du sicher bist, tippe auf Auflösen.";
+  });
 }
 async function gamePoint(){
   const s=weightedStreet();if(!s)return;pointGameStreet=s;pointGameGuess=null;
@@ -163,17 +176,63 @@ async function gamePoint(){
 }
 async function revealPointGame(){
   if(!pointGameStreet||!pointGameGuess)return;
-  try{const g=await geocodeStreet(pointGameStreet);const d=distanceM(pointGameGuess,g);
-    if(pointGameTargetMarker)pointGameMap.removeLayer(pointGameTargetMarker);if(pointGameTargetLayer)pointGameMap.removeLayer(pointGameTargetLayer);
-    pointGameTargetMarker=L.marker([g.lat,g.lon]).addTo(pointGameMap).bindPopup(`<b>${esc(pointGameStreet.name)}</b><br>Tatsächliche Lage`).openPopup();pointGameTargetLayer=L.polyline([[pointGameGuess.lat,pointGameGuess.lon],[g.lat,g.lon]],{color:"#d13d2f",weight:4,dashArray:"8 7"}).addTo(pointGameMap);
-    pointGameMap.fitBounds(L.latLngBounds([[pointGameGuess.lat,pointGameGuess.lon],[g.lat,g.lon]]),{padding:[40,40]});
+  try{
+    const g=await geocodeStreet(pointGameStreet);const d=distanceM(pointGameGuess,g);
+    if(pointGameTargetMarker){try{pointGameTargetMarker.remove()}catch(e){}}
+    if(pointGameTargetLayer){try{if(pointGameMap.getLayer("point-game-distance"))pointGameMap.removeLayer("point-game-distance")}catch(e){}try{if(pointGameMap.getSource("point-game-distance"))pointGameMap.removeSource("point-game-distance")}catch(e){}}
+    pointGameTargetMarker=new maplibregl.Marker({color:"#d13d2f"}).setLngLat([g.lon,g.lat]).setPopup(new maplibregl.Popup({offset:25}).setHTML(`<b>${esc(pointGameStreet.name)}</b><br>Tatsächliche Lage`)).addTo(pointGameMap).togglePopup();
+    const sourceData={type:"Feature",geometry:{type:"LineString",coordinates:[[pointGameGuess.lon,pointGameGuess.lat],[g.lon,g.lat]]}};
+    if(pointGameMap.isStyleLoaded()){
+      pointGameMap.addSource("point-game-distance",{type:"geojson",data:sourceData});
+      pointGameMap.addLayer({id:"point-game-distance",type:"line",source:"point-game-distance",paint:{"line-color":"#d13d2f","line-width":4,"line-dasharray":[2,2]}});
+    }
+    const bounds=new maplibregl.LngLatBounds([pointGameGuess.lon,pointGameGuess.lat],[pointGameGuess.lon,pointGameGuess.lat]);bounds.extend([g.lon,g.lat]);pointGameMap.fitBounds(bounds,{padding:40,maxZoom:16});
     const gain=d<100?30:d<250?25:d<500?20:d<1000?10:5;progress[pointGameStreet.id]=Math.min(100,score(pointGameStreet.id)+gain);save();renderProgress();
-    $("pointStatus").innerHTML=`<b>Aufgelöst:</b> ${d<100?"Sehr nah!":d<250?"Nah dran!":d<500?"Gute Schätzung.":"Weiter üben."} Entfernung: <b>${d<1000?Math.round(d)+" m":(d/1000).toFixed(2).replace(".",",")+" km"}</b>.`;$("pointReveal").disabled=true;
+    $("pointStatus").innerHTML=`<b>Aufgelöst:</b> ${d<100?"Sehr nah!":d<250?"Nah dran!":d<500?"Gute Schätzung.":"Weiter üben."} Entfernung: <b>${d<1000?Math.round(d)+" m":(d/1000).toFixed(2).replace(".",",")+" km"}</b>.`;$('pointReveal').disabled=true;
   }catch{$("pointStatus").textContent="Die tatsächliche Straßenposition konnte gerade nicht gefunden werden. Versuch es erneut."}
 }
-function gameSpeed(){let left=30,count=0,current=weightedStreet();$("gameBox").innerHTML=`<div class=quizbox><h3>⚡ 30-Sekunden-Challenge</h3><div style="font-size:32px;font-weight:900" id=timer>30</div><div style="font-size:22px;font-weight:800;margin:12px 0" id=speedStreet>${esc(current?.name||"")}</div><input id=speedInput placeholder="Ort eingeben …"><button id=speedBtn class=primary style="margin-top:8px">Antwort</button><div id=speedScore class=muted style="margin-top:8px">0 Treffer</div></div>`;const next=()=>{current=weightedStreet();$("speedStreet").textContent=current?.name||"";$("speedInput").value=""};const timer=setInterval(()=>{left--;if($("timer"))$("timer").textContent=left;if(left<=0){clearInterval(timer);alert(`Zeit! Ergebnis: ${count} Treffer.`);renderProgress()}},1000);$("speedBtn").onclick=()=>{if(!current)return;if($("speedInput").value.trim().toLowerCase()===current.place.toLowerCase()){count++;progress[current.id]=Math.min(100,score(current.id)+15);save()}$("speedScore").textContent=count+" Treffer";next()}}
+let speedTimer=null;
+function gameSpeed(){
+  if(speedTimer){clearInterval(speedTimer);speedTimer=null}
+  let left=30,count=0,wrong=0,current=weightedStreet(),finished=false,answers=[];
+  $("gameBox").innerHTML=`<div class=quizbox><h3>⚡ 30-Sekunden-Challenge</h3><div style="font-size:32px;font-weight:900" id=timer>30</div><div style="font-size:22px;font-weight:800;margin:12px 0" id=speedStreet>${esc(current?.name||"")}</div><input id=speedInput placeholder="Ort eingeben …" autocomplete="off"><button id=speedBtn class=primary style="margin-top:8px;width:100%">Antwort</button><div class="speed-summary" style="margin-top:14px"><div class="speed-bar"><i id=speedGoodBar></i><b id=speedBadBar></b></div><div class="speed-counts"><span id=speedGoodText>✓ 0 richtig</span><span id=speedBadText>✕ 0 falsch</span></div></div><div id=speedScore class=muted style="margin-top:8px">0 beantwortet</div></div>`;
+  const updateBar=()=>{
+    const total=count+wrong;
+    const goodPct=total?count/total*100:0;
+    const badPct=total?wrong/total*100:0;
+    const goodBar=$("speedGoodBar"),badBar=$("speedBadBar");
+    if(goodBar)goodBar.style.width=goodPct+"%";
+    if(badBar)badBar.style.width=badPct+"%";
+    if($("speedGoodText"))$("speedGoodText").textContent=`✓ ${count} richtig`;
+    if($("speedBadText"))$("speedBadText").textContent=`✕ ${wrong} falsch`;
+    if($("speedScore"))$("speedScore").textContent=`${total} beantwortet`;
+  };
+  const next=()=>{current=weightedStreet();if($("speedStreet"))$("speedStreet").textContent=current?.name||"";if($("speedInput")){ $("speedInput").value="";$("speedInput").focus() }};
+  const finish=()=>{
+    if(finished)return;finished=true;clearInterval(speedTimer);speedTimer=null;
+    const total=count+wrong,percent=total?Math.round(count/total*100):0;
+    const rows=answers.length?answers.map((a,i)=>`<div class="speed-result-row ${a.ok?"speed-result-good":"speed-result-bad"}"><div><b>${i+1}. ${esc(a.street)}</b><div class="small">Deine Antwort: <b>${esc(a.answer||"—")}</b></div>${a.ok?"":`<div class="small">Richtig wäre: <b>${esc(a.correct)}</b></div>`}</div><span>${a.ok?"✓ Richtig":"✕ Falsch"}</span></div>`).join(""):"<div class=muted>Keine Antwort abgegeben.</div>";
+    $("gameBox").innerHTML=`<div class=quizbox><h3>⏱️ Zeit abgelaufen!</h3><div class="speed-final"><div class="speed-final-number">${count}</div><div><b>von ${total} beantworteten Aufgaben richtig</b><div class=muted>Trefferquote: ${percent}%</div></div></div><div class="speed-summary"><div class="speed-bar"><i style="width:${total?count/total*100:0}%"></i><b style="width:${total?wrong/total*100:0}%"></b></div><div class="speed-counts"><span>✓ ${count} richtig</span><span>✕ ${wrong} falsch</span></div></div><h4 style="margin:18px 0 8px">Auflösung</h4><div class=speed-results>${rows}</div><button id=speedRestart class=primary style="width:100%;margin-top:14px">↻ Neustart</button></div>`;
+    renderProgress();
+    $("speedRestart").onclick=gameSpeed;
+  };
+  const submit=()=>{
+    if(finished||!current)return;
+    const answer=$("speedInput").value.trim();
+    if(!answer)return;
+    const ok=answer.toLowerCase()===current.place.toLowerCase();
+    answers.push({street:current.name,answer,correct:current.place,ok});
+    if(ok){count++;progress[current.id]=Math.min(100,score(current.id)+15);save()}else{wrong++}
+    updateBar();next();
+  };
+  $("speedBtn").onclick=submit;
+  $("speedInput").onkeydown=e=>{if(e.key==="Enter")submit()};
+  updateBar();
+  $("speedInput").focus();
+  speedTimer=setInterval(()=>{left--;if($("timer"))$("timer").textContent=left;if(left<=0)finish()},1000);
+}
 function gameWeak(){const weak=streets.filter(s=>score(s.id)<60).sort((a,b)=>score(a.id)-score(b.id));if(!weak.length){$("gameBox").innerHTML='<div class=success>🎉 Keine Straße unter 60%. Du hast alle aktuell gut trainiert.</div>';return}const s=weak[Math.floor(Math.random()*Math.min(weak.length,Math.max(1,Math.ceil(weak.length/2))))];$("gameBox").innerHTML=`<div class=quizbox><h3>🎯 Schwachstelle</h3><div style="font-size:25px;font-weight:900">${esc(s.name)}</div><p class=muted>${esc(s.place)} · Lernstand ${score(s.id)}%</p><button id=weakLearn class=primary>Diese Straße lernen</button></div>`;$("weakLearn").onclick=()=>learnStreet(s.id)}
-function gamePair(){const s=weightedStreet();if(!s)return;const near=streets.filter(x=>x.id!==s.id&&x.place===s.place).sort(()=>Math.random()-.5).slice(0,4);const correct=near[0];$("gameBox").innerHTML=`<div class=quizbox><h3>🔀 Gleicher Ort?</h3><div style="font-size:23px;font-weight:900;margin:12px 0">${esc(s.name)}</div><p class=muted>Welche der folgenden Straßen liegt ebenfalls im Ort ${esc(s.place)}?</p><div class=answers>${near.map(x=>`<button class=secondary data-id="${esc(x.id)}">${esc(x.name)}</button>`).join("")}</div></div>`;document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.id===correct?.id;if(ok){progress[s.id]=Math.min(100,score(s.id)+20);save()}alert(ok?"Richtig!":"Nicht ganz – die gesuchte Vergleichsstraße war "+(correct?.name||"")+".");renderProgress();gamePair()})}
+function gamePair(){const s=weightedStreet();if(!s)return;const correctPool=streets.filter(x=>x.id!==s.id&&x.place===s.place).sort(()=>Math.random()-.5);const otherPlaces=uniquePlaces().filter(p=>p!==s.place).sort(()=>Math.random()-.5).slice(0,3);const wrong=[];for(const p of otherPlaces){const candidates=streets.filter(x=>x.id!==s.id&&x.place===p);if(candidates.length)wrong.push(candidates[Math.floor(Math.random()*candidates.length)])}if(!correctPool.length||wrong.length<3){return gamePair()}const correct=correctPool[0];const choices=[correct,...wrong].sort(()=>Math.random()-.5);$("gameBox").innerHTML=`<div class=quizbox><h3>🔀 Gleicher Ort?</h3><div style="font-size:23px;font-weight:900;margin:12px 0">${esc(s.name)}</div><p class=muted>Welche der folgenden Straßen liegt ebenfalls im Ort ${esc(s.place)}?</p><div class=answers>${choices.map(x=>`<button class=secondary data-id="${esc(x.id)}">${esc(x.name)}</button>`).join("")}</div></div>`;document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.id===correct.id;if(ok){progress[s.id]=Math.min(100,score(s.id)+20);save()}alert(ok?"Richtig!":"Nicht ganz – die gesuchte Vergleichsstraße war "+correct.name+".");renderProgress();gamePair()})}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));$("clearMap").onclick=()=>{clearMapLayers();map.setView([53.66,9.84],11.5);$("mapStatus").textContent=`Karte geleert. ${streets.length} Straßen im Verzeichnis.`};$("search").oninput=renderList;$("place").onchange=renderList;$("stationBtn").onclick=()=>{switchView("karte");map.setView([CONFIG.station.lat,CONFIG.station.lon],15);stationMarker.openPopup()};$("reloadMap").onclick=refreshData;$("resetProgress").onclick=()=>{if(confirm("Wirklich den kompletten Lernstand zurücksetzen?")){progress={};save();renderAll()}};$("exportProgress").onclick=()=>{const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),progress},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="strassenlernen-lernstand.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 document.querySelectorAll(".game").forEach(g=>g.onclick=()=>({quiz:gameQuiz,mapfind:gameMapFind,route:gameRoute,speed:gameSpeed,weak:gameWeak,pair:gamePair,point:gamePoint}[g.dataset.game])());$("gameBox").addEventListener("click",e=>{if(e.target.id==="routeShow")calculateRouteToStreet(selectedStreet)});
 initMap();loadData();
