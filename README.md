@@ -1,48 +1,48 @@
-# Straßenlern-App – finale V1
+# Straßenlern-App – V2
 
-Diese Version ist als installierbare Progressive Web App (PWA) aufgebaut.
-
-## Starten
-Die Dateien müssen über einen Webserver ausgeliefert werden (nicht per file://), weil die App externe Karten-/Geodaten-APIs nutzt.
-
-Zum Beispiel:
-- VS Code + Live Server
-- Python: `python -m http.server 8000`
-- anschließend http://localhost:8000
-
-Auf iPhone: Seite in Safari öffnen -> Teilen -> „Zum Home-Bildschirm“.
-
-## Funktionen
-- echte OpenStreetMap-Straßen werden beim Start geladen
-- Suche nach Straßen
-- Ortsfilter
-- Karte mit Straßen
-- Wache als Startpunkt
-- Lernfortschritt in localStorage
-- Straßenquiz
-- Kartenquiz
-- Wache -> Zielstraße
-- Routing über OSRM
-- 30-Sekunden-Challenge
+Installierbare Progressive Web App (PWA) für das definierte Einsatzgebiet rund um Pinneberg.
 
 ## Einsatzgebiet
-Pinneberg, Kummerfeld, Prisdorf, Borstel-Hohenraden, Ellerbek, Bönningstedt,
-Hasloh, Halstenbek nördlich der Bahnstrecke, Rellingen, Egenbüttel und Tangstedt (Kreis Pinneberg).
+- Pinneberg
+- Kummerfeld
+- Prisdorf
+- Borstel-Hohenraden
+- Ellerbek
+- Bönningstedt
+- Hasloh
+- Halstenbek: nur nördlich der Bahnstrecke
+- Rellingen
+- Egenbüttel (Ortsteil von Rellingen; Lernbereich näherungsweise über Ortsteilzentrum)
+- Tangstedt (Kreis Pinneberg)
 
-Egenbüttel ist als Ortsteil von Rellingen dokumentiert; deshalb wird die Geodatenabfrage
-für Rellingen vorgenommen und Egenbüttel in der Datenstruktur als eigener Lernbereich geführt.
+Startpunkt: Polizeirevier Pinneberg, Elmshorner Straße 40.
 
-## Datenquellen
-OpenStreetMap / Overpass API für Straßen und Geometrien.
-OSRM Demo-Router für das Routenmodul.
-Die Dienststellenadresse und Koordinaten sind als Startpunkt fest eingetragen.
+## V2-Funktionen
+- OSM-Straßendaten über relationbasierte Overpass-Abfragen
+- mehrere Overpass-Fallback-Server
+- lokaler Datensatz-Cache nach erfolgreichem Laden
+- Gemeindegrenzen auf der Karte
+- Bahnstrecke auf der Karte
+- Halstenbek-Nordfilter
+- Straßenkarte mit Lernstandfarben
+- Suche und Ortsfilter
+- Lernfortschritt in localStorage
+- Export des Lernstands
+- Straßenquiz
+- Kartenquiz
+- Wache → Zielstraße mit OSRM
+- 30-Sekunden-Challenge
+- Schwachstellen-Training
+- räumliches Nachbarstraßen-Quiz
 
-## Wichtiger Hinweis zur Halstenbek-Regel
-Die App fragt die Bahnlinien innerhalb Halstenbeks separat ab und filtert Straßen anhand
-ihrer Lage relativ zum nächstgelegenen Bahnkorridor. Für eine dienstlich verbindliche
-Gebietsgrenze sollte diese Regel später gegen die intern gültige Revier-/Zuständigkeitskarte
-geprüft werden.
+## Datenqualität
+Die App verwendet aktuelle OpenStreetMap-Daten. OSM ist eine offene Geodatenbank; Daten können sich ändern und einzelne Straßen können fehlen oder anders klassifiziert sein. Egenbüttel ist kein eigenständiges Gemeindegebiet, daher ist die Lernbereich-Zuordnung dort bewusst als Näherung gekennzeichnet. Die dienstlich verbindliche Zuständigkeits-/Reviergrenze muss bei Bedarf gegen die interne Karte geprüft werden.
 
-## OSM-Lizenz
-OpenStreetMap-Daten stehen unter der Open Database License (ODbL). Bei Veröffentlichung
-müssen die OSM-Attribution und die jeweiligen Lizenzbedingungen eingehalten werden.
+## GitHub Pages
+Die Dateien müssen im Repository-Root liegen. GitHub Pages: `Deploy from a branch` → `main` → `/(root)`.
+
+## iPhone
+Safari öffnen → Teilen → Zum Home-Bildschirm → Hinzufügen.
+
+## OSM
+Kartendaten © OpenStreetMap-Mitwirkende. OpenStreetMap-Daten stehen unter der Open Database License (ODbL). Attribution ist in der App enthalten.

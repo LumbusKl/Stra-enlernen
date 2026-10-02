@@ -4,189 +4,164 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#17324d">
+<meta name="description" content="Straßenlern-App für das Einsatzgebiet Pinneberg">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <title>Straßenlernen – Einsatzgebiet Pinneberg</title>
 <style>
-:root{--navy:#17324d;--blue:#2367a5;--bg:#f3f5f7;--card:#fff;--text:#16202a;--muted:#66727e;--border:#dce2e7;--good:#218739;--warn:#c58a00;--bad:#c13c32}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
-header{background:var(--navy);color:#fff;padding:18px 18px 14px;position:sticky;top:0;z-index:1000}header h1{margin:0;font-size:23px}header p{margin:4px 0 0;opacity:.78;font-size:13px}
-nav{display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:73px;z-index:900}nav button{flex:1;border:0;background:#f0f3f5;padding:11px 7px;border-radius:12px;font-weight:700;color:var(--text)}nav button.active{background:#dceafa;color:#124e7f}
-main{max-width:980px;margin:auto;padding:16px 16px 90px}.view{display:none}.view.active{display:block}
-h2{font-size:21px;margin:5px 0 12px}.sub{color:var(--muted);font-size:14px;margin-top:-5px;margin-bottom:14px}
-input,select,button{font:inherit}input,select{width:100%;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fff}
-.filters{display:grid;grid-template-columns:1fr 190px;gap:8px;margin-bottom:12px}.chips{display:flex;gap:7px;overflow:auto;padding-bottom:7px}.chip{white-space:nowrap;border:1px solid var(--border);background:#fff;padding:8px 11px;border-radius:20px}.chip.active{background:#dceafa;border-color:#9fc2e2}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:8px 0}.street-row{display:flex;align-items:center;gap:10px}.street-row .grow{flex:1;min-width:0}.street{font-weight:800;font-size:16px}.muted{color:var(--muted);font-size:13px}.pill{font-size:12px;border-radius:20px;padding:5px 8px;background:#edf0f2}.green{background:#e4f3e7;color:#176d2a}.yellow{background:#fff2cc;color:#815d00}.red{background:#fde5e2;color:#963128}
-.primary{border:0;background:var(--blue);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800}.secondary{border:1px solid var(--border);background:#fff;padding:11px 13px;border-radius:12px;font-weight:700}
-#map{height:58vh;min-height:420px;border-radius:16px;border:1px solid var(--border);overflow:hidden}.mapbar{display:flex;gap:8px;margin:9px 0}.mapbar>*{flex:1}
-.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.game{cursor:pointer;min-height:120px}.game h3{margin:0 0 6px}.game p{margin:0;color:var(--muted);font-size:13px}
-.quizbox{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:12px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.answers button{text-align:left}
-.progressbar{height:8px;background:#e6eaed;border-radius:20px;overflow:hidden;margin-top:8px}.progressbar i{display:block;height:100%;background:#218739}
-.notice{background:#fff8df;border:1px solid #ead58d;padding:12px;border-radius:13px;color:#665400;font-size:13px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px}.stat b{display:block;font-size:21px}.stat span{font-size:12px;color:var(--muted)}
-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:8px;text-align:center;font-size:11px;color:var(--muted);z-index:1000}
-@media(max-width:650px){.filters,.game-grid,.answers{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}#map{height:55vh;min-height:360px}}
+:root{--navy:#17324d;--blue:#2367a5;--bg:#f3f5f7;--card:#fff;--text:#16202a;--muted:#66727e;--border:#dce2e7;--good:#218739;--warn:#c58a00;--bad:#c13c32;--purple:#6d45b5}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+header{background:var(--navy);color:#fff;padding:18px 18px 14px;position:sticky;top:0;z-index:1000}header h1{margin:0;font-size:23px}header p{margin:4px 0 0;opacity:.8;font-size:13px}
+nav{display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:73px;z-index:900}nav button{flex:1;border:0;background:#f0f3f5;padding:11px 7px;border-radius:12px;font-weight:800;color:var(--text)}nav button.active{background:#dceafa;color:#124e7f}
+main{max-width:1050px;margin:auto;padding:16px 16px 92px}.view{display:none}.view.active{display:block}h2{font-size:21px;margin:5px 0 12px}.sub{color:var(--muted);font-size:14px;margin-top:-5px;margin-bottom:14px}
+input,select,button{font:inherit}input,select{width:100%;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fff}.filters{display:grid;grid-template-columns:1fr 210px;gap:8px;margin-bottom:12px}.chips{display:flex;gap:7px;overflow:auto;padding-bottom:7px}.chip{white-space:nowrap;border:1px solid var(--border);background:#fff;padding:8px 11px;border-radius:20px}.chip.active{background:#dceafa;border-color:#9fc2e2}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:8px 0}.street-row{display:flex;align-items:center;gap:10px}.street-row .grow{flex:1;min-width:0}.street{font-weight:800;font-size:16px}.muted{color:var(--muted);font-size:13px}.pill{font-size:12px;border-radius:20px;padding:5px 8px;background:#edf0f2;white-space:nowrap}.green{background:#e4f3e7;color:#176d2a}.yellow{background:#fff2cc;color:#815d00}.red{background:#fde5e2;color:#963128}.purple{background:#eee7fb;color:#5d379e}
+.primary{border:0;background:var(--blue);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800}.secondary{border:1px solid var(--border);background:#fff;padding:11px 13px;border-radius:12px;font-weight:700}.danger{border:1px solid #e4b1ad;background:#fff4f3;color:#963128;padding:11px 13px;border-radius:12px;font-weight:700}
+#map{height:59vh;min-height:430px;border-radius:16px;border:1px solid var(--border);overflow:hidden}.mapbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}.legend{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}.legend span{font-size:12px;padding:6px 9px;border-radius:12px;background:#fff;border:1px solid var(--border)}
+.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.game{cursor:pointer;min-height:125px}.game h3{margin:0 0 6px}.game p{margin:0;color:var(--muted);font-size:13px}.quizbox{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:12px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.answers button{text-align:left}.progressbar{height:8px;background:#e6eaed;border-radius:20px;overflow:hidden;margin-top:8px}.progressbar i{display:block;height:100%;background:#218739}.notice{background:#fff8df;border:1px solid #ead58d;padding:12px;border-radius:13px;color:#665400;font-size:13px}.notice.error{background:#fff0ee;border-color:#e4aaa5;color:#7c2821}.success{background:#edf8ef;border:1px solid #b9ddbf;padding:12px;border-radius:13px;color:#176d2a;font-size:13px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px}.stat b{display:block;font-size:21px}.stat span{font-size:12px;color:var(--muted)}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.small{font-size:12px;color:var(--muted)}.tablelike{display:grid;gap:6px}.row{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}.row b{min-width:0}.row span{color:var(--muted);font-size:12px}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:8px;text-align:center;font-size:11px;color:var(--muted);z-index:1000}.leaflet-tooltip{font-weight:700}.boundary-label{background:#fff;border:1px solid #7d8a96;color:#33424e;border-radius:8px;padding:3px 6px;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,.15)}
+@media(max-width:650px){.filters,.game-grid,.answers,.two{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}#map{height:55vh;min-height:360px}.street-row{align-items:flex-start}.street-row .pill{display:none}}
 </style>
 </head>
 <body>
-<header><h1>🚓 Straßenlernen</h1><p>Einsatzgebiet Pinneberg · Lern- und Routen-App</p></header>
+<header><h1>🚓 Straßenlernen</h1><p>Einsatzgebiet Pinneberg · Lern-, Karten- und Routen-App</p></header>
 <nav>
-<button class="active" data-view="lernen">📚 Lernen</button>
-<button data-view="karte">🗺️ Karte</button>
-<button data-view="spiele">🎮 Spiele</button>
-<button data-view="fortschritt">📈 Fortschritt</button>
+<button class="active" data-view="lernen">📚 Lernen</button><button data-view="karte">🗺️ Karte</button><button data-view="spiele">🎮 Spiele</button><button data-view="fortschritt">📈 Fortschritt</button>
 </nav>
 <main>
 <section id="lernen" class="view active">
-<h2>Straßen lernen</h2><p class="sub">Suche jede erfasste Straße und trainiere genau die Straßen, die du noch nicht sicher kannst.</p>
-<div class="filters"><input id="search" placeholder="Straße oder Ort suchen …"><select id="place"><option>Alle Orte</option></select></div>
-<div id="chips" class="chips"></div>
-<div id="dataStatus" class="notice">Straßendaten werden geladen …</div>
-<div id="streetList"></div>
+<h2>Straßen lernen</h2><p class="sub">Alle benannten Straßen aus den definierten Einsatzgemeinden. Schwache Straßen werden in den Spielen häufiger gezogen.</p>
+<div class="filters"><input id="search" placeholder="Straße oder Ort suchen …"><select id="place"><option>Alle Orte</option></select></div><div id="chips" class="chips"></div>
+<div id="dataStatus" class="notice">Straßendaten werden geladen …</div><div id="streetList"></div>
 </section>
-
 <section id="karte" class="view">
-<h2>Einsatzgebiet-Karte</h2><p class="sub">Startpunkt der Routen-Challenges: Polizeirevier Pinneberg, Elmshorner Straße 40.</p>
+<h2>Einsatzgebiet-Karte</h2><p class="sub">Gemeindegrenzen, Straßen, Bahnlinie und Dienststelle. Halstenbek ist auf den Bereich nördlich der Bahnstrecke beschränkt.</p>
 <div id="map"></div>
-<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ Straßen neu laden</button></div>
+<div class="legend"><span>🔵 unbekannt</span><span>🟡 in Training</span><span>🟢 sicher</span><span>⬛ Gemeindegrenze</span><span>🚆 Bahnlinie</span></div>
+<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ Daten aktualisieren</button></div>
+<div id="mapStatus" class="small"></div>
 </section>
-
 <section id="spiele" class="view">
-<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben werden aus der echten Straßen-Datenbank erzeugt.</p>
+<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben verwenden dieselben OSM-Straßen wie die Lernliste.</p>
 <div class="game-grid">
 <div class="card game" data-game="quiz"><h3>🧠 Straßen-Quiz</h3><p>Welche Gemeinde gehört zur Straße?</p></div>
-<div class="card game" data-game="mapfind"><h3>🗺️ Wo liegt die Straße?</h3><p>Zielstraße auf der Karte finden.</p></div>
-<div class="card game" data-game="route"><h3>🚓 Wache → Zielstraße</h3><p>Start an der Dienststelle und Route aus dem Kopf beschreiben.</p></div>
-<div class="card game" data-game="speed"><h3>⚡ 30-Sekunden</h3><p>So viele Straßen wie möglich erkennen.</p></div>
-</div>
-<div id="gameBox"></div>
+<div class="card game" data-game="mapfind"><h3>🗺️ Wo liegt die Straße?</h3><p>Merke dir die Lage und blende die Straße danach ein.</p></div>
+<div class="card game" data-game="route"><h3>🚓 Wache → Zielstraße</h3><p>Route aus dem Kopf beschreiben und anschließend prüfen.</p></div>
+<div class="card game" data-game="speed"><h3>⚡ 30-Sekunden</h3><p>So viele Straßen wie möglich dem richtigen Ort zuordnen.</p></div>
+<div class="card game" data-game="weak"><h3>🎯 Schwachstellen-Training</h3><p>Gezielt Straßen mit niedrigem Lernstand wiederholen.</p></div>
+<div class="card game" data-game="pair"><h3>🔀 Straße → Nachbarstraße</h3><p>Richte dich auf die örtliche Straßenstruktur ein.</p></div>
+</div><div id="gameBox"></div>
 </section>
-
 <section id="fortschritt" class="view">
-<h2>Dein Lernfortschritt</h2>
-<div class="stats"><div class="stat"><b id="statKnown">0</b><span>gelernt</span></div><div class="stat"><b id="statTotal">0</b><span>Straßen</span></div><div class="stat"><b id="statPercent">0%</b><span>Fortschritt</span></div></div>
-<div id="progressList"></div>
+<h2>Dein Lernfortschritt</h2><div class="stats"><div class="stat"><b id="statKnown">0</b><span>sicher ≥80%</span></div><div class="stat"><b id="statTotal">0</b><span>Straßen</span></div><div class="stat"><b id="statPercent">0%</b><span>Ø Lernstand</span></div><div class="stat"><b id="statAreas">0</b><span>Orte</span></div></div>
+<div class="two" style="margin-top:10px"><button id="resetProgress" class="danger">Lernstand zurücksetzen</button><button id="exportProgress" class="secondary">Lernstand exportieren</button></div><div id="progressList"></div>
 </section>
 </main>
-<footer>© Straßenlernen · Kartendaten © OpenStreetMap-Mitwirkende</footer>
+<footer>© Straßenlernen · Kartendaten © OpenStreetMap-Mitwirkende · ODbL</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const CONFIG={
- areas:[
-  {name:"Pinneberg",osm:"Pinneberg",scope:"complete"},
-  {name:"Kummerfeld",osm:"Kummerfeld",scope:"complete"},
-  {name:"Prisdorf",osm:"Prisdorf",scope:"complete"},
-  {name:"Borstel-Hohenraden",osm:"Borstel-Hohenraden",scope:"complete"},
-  {name:"Ellerbek",osm:"Ellerbek",scope:"complete"},
-  {name:"Bönningstedt",osm:"Bönningstedt",scope:"complete"},
-  {name:"Hasloh",osm:"Hasloh",scope:"complete"},
-  {name:"Halstenbek",osm:"Halstenbek",scope:"north_of_railway"},
-  {name:"Rellingen",osm:"Rellingen",scope:"complete"},
-  {name:"Egenbüttel",osm:"Rellingen",scope:"subarea"},
-  {name:"Tangstedt",osm:"Tangstedt",scope:"complete"}
- ],
  station:{lat:53.666836,lon:9.794725,name:"Polizeirevier Pinneberg",address:"Elmshorner Straße 40, 25421 Pinneberg"},
- overpass:"https://overpass-api.de/api/interpreter",
- router:"https://router.project-osrm.org/route/v1/driving"
+ overpassEndpoints:["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://overpass.private.coffee/api/interpreter"],
+ router:"https://router.project-osrm.org/route/v1/driving",
+ areas:[
+  {name:"Pinneberg",rel:443487,scope:"complete"},{name:"Kummerfeld",rel:443359,scope:"complete"},{name:"Prisdorf",rel:443358,scope:"complete"},{name:"Borstel-Hohenraden",rel:443731,scope:"complete"},
+  {name:"Ellerbek",rel:443703,scope:"complete"},{name:"Bönningstedt",rel:443704,scope:"complete"},{name:"Hasloh",rel:443705,scope:"complete"},{name:"Halstenbek",rel:443486,scope:"north_of_railway"},
+  {name:"Rellingen",rel:443755,scope:"complete"},{name:"Tangstedt (Kreis Pinneberg)",rel:443706,scope:"complete"}
+ ],
+ egen:{name:"Egenbüttel",lat:53.65257,lon:9.85186,radiusM:1800}
 };
-
-let streets=[], progress=JSON.parse(localStorage.getItem("streetProgress")||"{}"), map, mapLayer, stationMarker, selectedStreet=null;
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-function save(){localStorage.setItem("streetProgress",JSON.stringify(progress));}
-function score(id){return progress[id]||0}
-function cls(v){return v>=80?"green":v>=40?"yellow":"red"}
+const ROAD_TYPES=["motorway","trunk","primary","secondary","tertiary","unclassified","residential","living_street","service","road","track","pedestrian"];
+let streets=[],boundaries=[],railway=[],map,mapLayer,boundaryLayer,railLayer,stationMarker,routeLayer,progress=loadProgress(),selectedStreet=null;
+const $=id=>document.getElementById(id); const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function loadProgress(){try{return JSON.parse(localStorage.getItem("streetProgressV2")||localStorage.getItem("streetProgress")||"{}")}catch{return {}}}
+function save(){localStorage.setItem("streetProgressV2",JSON.stringify(progress));}
+function score(id){return Number(progress[id]||0)} function cls(v){return v>=80?"green":v>=40?"yellow":"red"}
 function uniquePlaces(){return [...new Set(streets.map(s=>s.place))].sort((a,b)=>a.localeCompare(b,"de"))}
-function renderPlaces(){ $("place").innerHTML='<option>Alle Orte</option>'+uniquePlaces().map(p=>`<option>${esc(p)}</option>`).join(""); $("chips").innerHTML='<button class="chip active" data-place="Alle Orte">Alle</button>'+uniquePlaces().map(p=>`<button class="chip" data-place="${esc(p)}">${esc(p)}</button>`).join(""); document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ $("place").value=b.dataset.place; document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderList();});}
-function renderList(){
- const q=$("search").value.trim().toLowerCase(), p=$("place").value;
- const arr=streets.filter(s=>(p==="Alle Orte"||s.place===p)&&(!q||s.name.toLowerCase().includes(q)||s.place.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,"de"));
- $("streetList").innerHTML=arr.length?arr.map(s=>`<div class="card street-row"><div class="grow"><div class="street">${esc(s.name)}</div><div class="muted">${esc(s.place)} · ${s.segments} Kartenabschnitte</div><div class="progressbar"><i style="width:${score(s.id)}%"></i></div></div><span class="pill ${cls(score(s.id))}">${score(s.id)}%</span><button class="secondary learn" data-id="${s.id}">Lernen</button></div>`).join(""):'<div class="card">Keine Treffer.</div>';
- document.querySelectorAll(".learn").forEach(b=>b.onclick=()=>learnStreet(b.dataset.id));
-}
-function learnStreet(id){const s=streets.find(x=>x.id===id); if(!s)return; progress[id]=Math.min(100,score(id)+20); save(); renderList(); renderProgress(); if(map)focusStreet(s); alert(`${s.name} · ${s.place}\\nLernstand: ${progress[id]}%`);}
-function renderProgress(){
- const known=streets.filter(s=>score(s.id)>=80).length, avg=streets.length?Math.round(streets.reduce((a,s)=>a+score(s.id),0)/streets.length):0;
- $("statKnown").textContent=known;$("statTotal").textContent=streets.length;$("statPercent").textContent=avg+"%";
- const places=uniquePlaces();$("progressList").innerHTML=places.map(p=>{const a=streets.filter(s=>s.place===p),v=a.length?Math.round(a.reduce((x,s)=>x+score(s.id),0)/a.length):0;return `<div class="card"><b>${esc(p)}</b><div class="muted">${a.length} Straßen · Ø ${v}%</div><div class="progressbar"><i style="width:${v}%"></i></div></div>`}).join("");
-}
-async function loadStreets(){
- $("dataStatus").textContent="Lade aktuelle Straßendaten von OpenStreetMap …";
- const all=[]; 
- for(const area of CONFIG.areas.filter(a=>a.scope!=="subarea")){
-  const q=`[out:json][timeout:90];area["boundary"="administrative"]["name"="${area.osm}"]->.a;(way(area.a)["highway"]["name"];);out geom;`;
-  try{const r=await fetch(CONFIG.overpass+"?data="+encodeURIComponent(q));if(!r.ok)throw Error();const j=await r.json();for(const e of j.elements||[])all.push({id:area.name+":"+e.id,name:e.tags.name,place:area.name,geometry:e.geometry||[],highway:e.tags.highway,osmId:e.id});}
-  catch(e){console.warn("Overpass",area.name,e)}
+function distanceM(a,b){const R=6371000,la=a.lat*Math.PI/180,lb=b.lat*Math.PI/180,dp=(b.lat-a.lat)*Math.PI/180,dl=(b.lon-a.lon)*Math.PI/180;const x=Math.sin(dp/2)**2+Math.cos(la)*Math.cos(lb)*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function centroid(g){if(!g?.length)return null;return {lat:g.reduce((a,p)=>a+p.lat,0)/g.length,lon:g.reduce((a,p)=>a+p.lon,0)/g.length}}
+function weightedStreet(){if(!streets.length)return null;const weights=streets.map(s=>Math.max(1,110-score(s.id)));let t=weights.reduce((a,b)=>a+b,0),r=Math.random()*t;for(let i=0;i<streets.length;i++){r-=weights[i];if(r<=0)return streets[i]}return streets[streets.length-1]}
+function renderPlaces(){const places=uniquePlaces();$("place").innerHTML='<option>Alle Orte</option>'+places.map(p=>`<option>${esc(p)}</option>`).join("");$("chips").innerHTML='<button class="chip active" data-place="Alle Orte">Alle</button>'+places.map(p=>`<button class="chip" data-place="${esc(p)}">${esc(p)}</button>`).join("");document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{$("place").value=b.dataset.place;document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderList()})}
+function renderList(){const q=$("search").value.trim().toLowerCase(),p=$("place").value;const arr=streets.filter(s=>(p==="Alle Orte"||s.place===p)&&(!q||s.name.toLowerCase().includes(q)||s.place.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,"de")||a.place.localeCompare(b.place,"de"));$("streetList").innerHTML=arr.length?arr.map(s=>`<div class="card street-row"><div class="grow"><div class="street">${esc(s.name)}</div><div class="muted">${esc(s.place)} · ${s.segments} Kartenabschnitte${s.approx?" · Ortsteil-Zuordnung näherungsweise":""}</div><div class="progressbar"><i style="width:${score(s.id)}%"></i></div></div><span class="pill ${cls(score(s.id))}">${score(s.id)}%</span><button class="secondary learn" data-id="${esc(s.id)}">Lernen</button></div>`).join(""):"<div class=\"card\">Keine Treffer.</div>";document.querySelectorAll(".learn").forEach(b=>b.onclick=()=>learnStreet(b.dataset.id))}
+function learnStreet(id){const s=streets.find(x=>x.id===id);if(!s)return;progress[id]=Math.min(100,score(id)+20);save();renderList();renderProgress();if(map)focusStreet(s);}
+function renderProgress(){const known=streets.filter(s=>score(s.id)>=80).length,avg=streets.length?Math.round(streets.reduce((a,s)=>a+score(s.id),0)/streets.length):0;$("statKnown").textContent=known;$("statTotal").textContent=streets.length;$("statPercent").textContent=avg+"%";$("statAreas").textContent=uniquePlaces().length;$("progressList").innerHTML=uniquePlaces().map(p=>{const a=streets.filter(s=>s.place===p),v=a.length?Math.round(a.reduce((x,s)=>x+score(s.id),0)/a.length):0;return `<div class="card"><b>${esc(p)}</b><div class="muted">${a.length} Straßen · Ø ${v}%</div><div class="progressbar"><i style="width:${v}%"></i></div></div>`}).join("")}
+async function fetchOverpass(query){let last;for(const endpoint of CONFIG.overpassEndpoints){try{const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),150000);const r=await fetch(endpoint+"?data="+encodeURIComponent(query),{signal:ctrl.signal,headers:{Accept:"application/json"}});clearTimeout(tm);if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return j}catch(e){last=e}}throw last||new Error("Overpass nicht erreichbar")}
+function areaIds(){return CONFIG.areas.map(a=>3600000000+a.rel)}
+async function loadAllOSM(){
+ const roadPromises=CONFIG.areas.map(async area=>{
+   const aid=3600000000+area.rel;
+   const q=`[out:json][timeout:120];way(area:${aid})["highway"]["name"];out geom;`;
+   const j=await fetchOverpass(q);
+   return {area,j};
+ });
+ const roadResults=await Promise.all(roadPromises);
+ const roads=[];
+ for(const {area,j} of roadResults){
+   for(const e of j.elements||[]){
+     if(e.type!=="way"||!e.tags?.name||!e.geometry?.length||!ROAD_TYPES.includes(e.tags.highway))continue;
+     roads.push({area,e});
+   }
  }
- // Egenbüttel is a district of Rellingen; the app keeps it as a separate learning label.
- // We include Rellingen streets in the Rellingen dataset and additionally identify nearby Egenbüttel streets by a coarse place-node radius only when coordinates are available.
- const dedup=new Map();
- for(const s of all){const key=s.place+"|"+s.name;if(!dedup.has(key))dedup.set(key,{...s,id:key,segments:1});else dedup.get(key).segments++;}
- streets=[...dedup.values()];
- // Halstenbek: runtime railway-aware filtering. Keep only streets whose geometry is on the north side of the nearest railway corridor.
- await applyHalstenbekRailwayFilter();
- renderPlaces();renderList();renderProgress();
- $("dataStatus").textContent=`${streets.length} benannte Straßen/Street-Gruppen geladen. Quelle: OpenStreetMap.`;
+ const boundaryQuery=`[out:json][timeout:120];rel(id:${CONFIG.areas.map(a=>a.rel).join(",")});out geom;`;
+ const railwayQuery=`[out:json][timeout:90];rel(id:7669536);out geom;`;
+ const [bounds,rail]=await Promise.all([fetchOverpass(boundaryQuery),fetchOverpass(railwayQuery)]);
+ const polys=parseBoundaries(bounds.elements||[]);
+ const grouped=new Map();
+ for(const {area,e} of roads){
+   const key=area.name+"|"+e.tags.name;
+   if(grouped.has(key)){const old=grouped.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}
+   else grouped.set(key,{id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway});
+ }
+ streets=[...grouped.values()];
+ for(const s of streets){
+   if(s.place!=="Rellingen")continue;
+   const c=centroid(s.geometry);
+   if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}
+ }
+ boundaries=polys; railway=extractRailwayGeometry(rail);
+ applyHalstenbekFilter();
+ saveDatasetCache();
+ const timestamps=roadResults.map(x=>x.j.osm3s?.timestamp_osm_base).filter(Boolean);
+ return {timestamp:timestamps.sort().slice(-1)[0]||new Date().toISOString()};
 }
-async function applyHalstenbekRailwayFilter(){
- const hs=streets.filter(s=>s.place==="Halstenbek"); if(!hs.length)return;
- const q='[out:json][timeout:60];area["boundary"="administrative"]["name"="Halstenbek"]->.a;(way(area.a)["railway"];);out geom;';
- try{
-  const r=await fetch(CONFIG.overpass+"?data="+encodeURIComponent(q));if(!r.ok)return;const j=await r.json();const rails=(j.elements||[]).flatMap(e=>e.geometry||[]);
-  if(!rails.length)return;
-  function nearestRailY(g){let best=1e9, y=0; for(const pt of g){for(const rr of rails){const d=Math.abs(pt.lat-rr.lat)+Math.abs(pt.lon-rr.lon);if(d<best){best=d;y=rr.lat}}}return y}
-  streets=streets.filter(s=>s.place!=="Halstenbek"||s.geometry.length===0||s.geometry.reduce((a,p)=>a+p.lat,0)/s.geometry.length>nearestRailY(s.geometry));
- }catch(e){console.warn("Rail filter unavailable",e)}
+function parseBoundaries(elements){const out=[];for(const rel of elements){const a=CONFIG.areas.find(x=>x.rel===rel.id);if(!a||!rel.members)continue;const members=rel.members.filter(m=>m.type==="way"&&m.role==="outer"&&m.geometry?.length);out.push({name:a.name,rel:a.rel,members});}return out}
+function pointInRing(pt,ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i].lon,yi=ring[i].lat,xj=ring[j].lon,yj=ring[j].lat;const intersect=((yi>pt.lat)!==(yj>pt.lat))&&(pt.lon<(xj-xi)*(pt.lat-yi)/(yj-yi)+xi);if(intersect)inside=!inside}return inside}
+function insideBoundary(pt,b){return b.members.some(m=>pointInRing(pt,m.geometry))}
+function classifyRoads(ways,bounds){const mapByKey=new Map();for(const e of ways){const c=centroid(e.geometry);if(!c)continue;let area=CONFIG.areas.find(a=>bounds.find(b=>b.rel===a.rel&&insideBoundary(c,b)));if(!area)continue;const key=area.name+"|"+e.tags.name;const item={id:key,name:e.tags.name,place:area.name,segments:1,geometry:e.geometry,highway:e.tags.highway};if(mapByKey.has(key)){const old=mapByKey.get(key);old.segments++;old.geometry=old.geometry.concat(e.geometry)}else mapByKey.set(key,item)}
+ // Egenbüttel is an official Rellingen Ortsteil, not an independent municipality. For training we give it a separate label using a radius around the mapped Ortsteil centre and mark it as approximate.
+ for(const s of mapByKey.values()){if(s.place!=="Rellingen")continue;const c=centroid(s.geometry);if(c&&distanceM(c,CONFIG.egen)<CONFIG.egen.radiusM){s.place="Egenbüttel";s.approx=true;s.id="Egenbüttel|"+s.name}}
+ return [...mapByKey.values()]
 }
-function initMap(){
- map=L.map("map").setView([53.66,9.84],11.5);
- L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap-Mitwirkende"}).addTo(map);
- stationMarker=L.marker([CONFIG.station.lat,CONFIG.station.lon]).addTo(map).bindPopup(`<b>${CONFIG.station.name}</b><br>${CONFIG.station.address}`);
- drawMapStreets();
+function extractRailwayGeometry(j){const out=[];for(const rel of j.elements||[]){for(const m of rel.members||[]){if(m.type==="way"&&m.geometry?.length)out.push(m.geometry)}}return out}
+function railLatAtLon(seg,lon){for(let i=1;i<seg.length;i++){const a=seg[i-1],b=seg[i];if((lon>=Math.min(a.lon,b.lon)&&lon<=Math.max(a.lon,b.lon))&&Math.abs(b.lon-a.lon)>1e-9){const t=(lon-a.lon)/(b.lon-a.lon);return a.lat+t*(b.lat-a.lat)}}return seg[Math.floor(seg.length/2)]?.lat??0}
+function applyHalstenbekFilter(){if(!railway.length)return;streets=streets.filter(s=>{if(s.place!=="Halstenbek")return true;const c=centroid(s.geometry);if(!c)return false;let best=Infinity,railLat=0;for(const seg of railway){for(let i=1;i<seg.length;i++){const a=seg[i-1],b=seg[i];const dx=(b.lon-a.lon)*Math.cos(c.lat*Math.PI/180),dy=b.lat-a.lat;const px=(c.lon-a.lon)*Math.cos(c.lat*Math.PI/180),py=c.lat-a.lat;const len=dx*dx+dy*dy||1;let t=(px*dx+py*dy)/len;t=Math.max(0,Math.min(1,t));const x=a.lon+(b.lon-a.lon)*t,y=a.lat+(b.lat-a.lat)*t;const d=(x-c.lon)**2+(y-c.lat)**2;if(d<best){best=d;railLat=y}}}return c.lat>railLat+0.00003})}
+function datasetKey(){return "streetDatasetV2"}
+function saveDatasetCache(){try{localStorage.setItem(datasetKey(),JSON.stringify({streets,boundaries,railway,savedAt:new Date().toISOString()}))}catch(e){console.warn("Cache zu groß",e)}}
+function loadDatasetCache(){try{const x=JSON.parse(localStorage.getItem(datasetKey())||"null");if(x?.streets?.length){streets=x.streets;boundaries=x.boundaries||[];railway=x.railway||[];return true}}catch(e){}return false}
+async function loadData(){
+ $("dataStatus").textContent="Lade vollständige Straßen- und Grenzdaten von OpenStreetMap …";$("dataStatus").classList.remove("error");
+ if(loadDatasetCache()){renderAll();$("dataStatus").textContent=`Gespeicherter Datensatz geladen: ${streets.length} Straßen-Gruppen. Aktualisiere bei Bedarf über „Daten aktualisieren“.`;setTimeout(refreshData,150);return}
+ try{const info=await loadAllOSM();renderAll();$("dataStatus").textContent=`${streets.length} Straßen-Gruppen geladen · OSM-Datenstand ${new Date(info.timestamp).toLocaleString("de-DE")}.`;}
+ catch(e){$("dataStatus").classList.add("error");$("dataStatus").innerHTML=`<b>Straßendaten konnten nicht geladen werden.</b><br>Bitte Internetverbindung prüfen und „Erneut versuchen“ drücken.<br><button id="retry" class="primary" style="margin-top:8px">↻ Erneut versuchen</button>`;$("retry").onclick=loadData;renderAll();}
 }
-function drawMapStreets(){
- if(!map)return;if(mapLayer)map.removeLayer(mapLayer);
- const layers=[]; for(const s of streets){if(!s.geometry?.length)continue;const latlng=s.geometry.map(p=>[p.lat,p.lon]);layers.push(L.polyline(latlng,{color:score(s.id)>=80?"#218739":score(s.id)>=40?"#c58a00":"#2367a5",weight:3,opacity:.7}).bindTooltip(`${esc(s.name)} · ${esc(s.place)}`,{sticky:true}).on("click",()=>learnStreet(s.id)));}
- mapLayer=L.layerGroup(layers).addTo(map);
-}
-function focusStreet(s){if(!s.geometry?.length)return;const b=L.latLngBounds(s.geometry.map(p=>[p.lat,p.lon]));map.fitBounds(b,{padding:[30,30],maxZoom:17});switchView("karte");}
-function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="karte"){setTimeout(()=>map&&map.invalidateSize(),50)}}
-function randomStreet(){return streets[Math.floor(Math.random()*streets.length)]}
-function gameQuiz(){
- const s=randomStreet();const places=uniquePlaces();const choices=[s.place,...places.filter(p=>p!==s.place).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
- $("gameBox").innerHTML=`<div class="quizbox"><h3>Zu welchem Ort gehört diese Straße?</h3><div style="font-size:25px;font-weight:900;margin:14px 0">${esc(s.name)}</div><div class="answers">${choices.map(c=>`<button class="secondary qanswer" data-a="${esc(c)}">${esc(c)}</button>`).join("")}</div></div>`;
- document.querySelectorAll(".qanswer").forEach(b=>b.onclick=()=>{const ok=b.dataset.a===s.place;if(ok){progress[s.id]=Math.min(100,score(s.id)+25);save();}alert(ok?"Richtig!":"Nicht richtig – die Straße gehört zu "+s.place+".");renderProgress();gameQuiz();});
-}
-function gameMapFind(){
- const s=randomStreet();selectedStreet=s; $("gameBox").innerHTML=`<div class="quizbox"><h3>Wo liegt „${esc(s.name)}“?</h3><p class="muted">Klicke die Karte an der vermuteten Stelle an. Danach kannst du die echte Straße einblenden.</p><button id="showStreet" class="primary">Straße anzeigen</button></div>`; switchView("karte"); $("showStreet").onclick=()=>focusStreet(s);
-}
-async function gameRoute(){
- const s=randomStreet();selectedStreet=s;
- $("gameBox").innerHTML=`<div class="quizbox"><h3>🚓 Wache → ${esc(s.name)}</h3><p>Start: ${esc(CONFIG.station.address)}</p><p><b>Aufgabe:</b> Beschreibe den Fahrtweg aus dem Kopf.</p><button id="routeShow" class="primary">Route anschließend anzeigen</button></div>`;
- $("routeShow").onclick=()=>calculateRouteToStreet(s);
-}
-async function calculateRouteToStreet(s){
- if(!s.geometry?.length){alert("Für diese Straße liegt momentan keine Geometrie vor.");return}
- const end=s.geometry[Math.floor(s.geometry.length/2)];
- const url=`${CONFIG.router}/${CONFIG.station.lon},${CONFIG.station.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
- try{
-  const r=await fetch(url);const j=await r.json();if(!j.routes?.length)throw Error();
-  const rt=j.routes[0];switchView("karte");setTimeout(()=>{const line=L.geoJSON(rt.geometry,{style:{color:"#d13d2f",weight:6}}).addTo(map);map.fitBounds(line.getBounds(),{padding:[30,30]});alert(`Route zur ${s.name}: ${Math.round(rt.distance/100)/10} km · ca. ${Math.round(rt.duration/60)} min.\\nDie rote Linie zeigt die berechnete Straßenroute.`)},80);
- }catch(e){alert("Routing momentan nicht erreichbar. Die Zielstraße kann trotzdem auf der Karte gelernt werden.");focusStreet(s)}
-}
-function gameSpeed(){
- let left=30,count=0,current=randomStreet(),timer;
- $("gameBox").innerHTML=`<div class="quizbox"><h3>⚡ 30-Sekunden-Challenge</h3><div style="font-size:32px;font-weight:900" id="timer">30</div><div style="font-size:22px;font-weight:800;margin:12px 0" id="speedStreet">${esc(current.name)}</div><input id="speedInput" placeholder="Ort eingeben …"><button id="speedBtn" class="primary" style="margin-top:8px">Antwort</button><div id="speedScore" class="muted" style="margin-top:8px">0 Treffer</div></div>`;
- const next=()=>{current=randomStreet();$("speedStreet").textContent=current.name;$("speedInput").value=""};
- $("speedBtn").onclick=()=>{if($("speedInput").value.trim().toLowerCase()===current.place.toLowerCase()){count++;progress[current.id]=Math.min(100,score(current.id)+15);save();}$("speedScore").textContent=count+" Treffer";next()};
- timer=setInterval(()=>{left--;if($("timer"))$("timer").textContent=left;if(left<=0){clearInterval(timer);alert(`Zeit! Ergebnis: ${count} Treffer.`);renderProgress();}},1000);
-}
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
-$("search").oninput=renderList;$("place").onchange=renderList;
-$("stationBtn").onclick=()=>map.setView([CONFIG.station.lat,CONFIG.station.lon],15);
-$("reloadMap").onclick=async()=>{await loadStreets();drawMapStreets()};
-document.querySelectorAll(".game").forEach(g=>g.onclick=()=>({quiz:gameQuiz,mapfind:gameMapFind,route:gameRoute,speed:gameSpeed}[g.dataset.game])());
-initMap();loadStreets();
+async function refreshData(){try{const info=await loadAllOSM();renderAll();$("dataStatus").textContent=`Aktualisiert: ${streets.length} Straßen-Gruppen · ${new Date(info.timestamp).toLocaleString("de-DE")}`;}catch(e){$("mapStatus").textContent="Aktualisierung momentan nicht möglich – der letzte gespeicherte Datensatz bleibt aktiv."}}
+function renderAll(){renderPlaces();renderList();renderProgress();drawMap();}
+function initMap(){map=L.map("map").setView([53.66,9.84],11.5);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap-Mitwirkende"}).addTo(map);stationMarker=L.marker([CONFIG.station.lat,CONFIG.station.lon]).addTo(map).bindPopup(`<b>${CONFIG.station.name}</b><br>${CONFIG.station.address}`);drawMap()}
+function drawMap(){if(!map)return;if(mapLayer)map.removeLayer(mapLayer);if(boundaryLayer)map.removeLayer(boundaryLayer);if(railLayer)map.removeLayer(railLayer);const ls=[];for(const s of streets){if(!s.geometry?.length)continue;const latlng=s.geometry.map(p=>[p.lat,p.lon]);ls.push(L.polyline(latlng,{color:score(s.id)>=80?"#218739":score(s.id)>=40?"#c58a00":"#2367a5",weight:3,opacity:.75}).bindTooltip(`${esc(s.name)} · ${esc(s.place)}`,{sticky:true}).on("click",()=>learnStreet(s.id)))}mapLayer=L.layerGroup(ls).addTo(map);
+ const bl=[];for(const b of boundaries){for(const m of b.members||[]){if(!m.geometry?.length)continue;bl.push(L.polyline(m.geometry.map(p=>[p.lat,p.lon]),{color:"#26343f",weight:2,dashArray:"6 5",opacity:.75}))}const first=b.members?.[0]?.geometry?.[Math.floor((b.members[0].geometry.length-1)/2)];if(first)L.marker([first.lat,first.lon],{icon:L.divIcon({className:"boundary-label",html:esc(b.name),iconSize:null})}).addTo(map)}boundaryLayer=L.layerGroup(bl).addTo(map);
+ const rl=[];for(const seg of railway){if(seg?.length)rl.push(L.polyline(seg.map(p=>[p.lat,p.lon]),{color:"#222",weight:4,opacity:.8}))}railLayer=L.layerGroup(rl).addTo(map);$("mapStatus").textContent=`${streets.length} Straßen-Gruppen · ${boundaries.length} Gemeindegrenzen · Bahnlinie eingeblendet.`}
+function focusStreet(s){if(!s?.geometry?.length)return;const b=L.latLngBounds(s.geometry.map(p=>[p.lat,p.lon]));switchView("karte");setTimeout(()=>map.fitBounds(b,{padding:[30,30],maxZoom:17}),80)}
+function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="karte")setTimeout(()=>map&&map.invalidateSize(),80)}
+function gameQuiz(){const s=weightedStreet();if(!s)return;const ps=uniquePlaces(),choices=[s.place,...ps.filter(p=>p!==s.place).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);$("gameBox").innerHTML=`<div class=quizbox><h3>Zu welchem Ort gehört diese Straße?</h3><div style="font-size:25px;font-weight:900;margin:14px 0">${esc(s.name)}</div><div class=answers>${choices.map(c=>`<button class=secondary data-a="${esc(c)}">${esc(c)}</button>`).join("")}</div></div>`;document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.a===s.place;if(ok){progress[s.id]=Math.min(100,score(s.id)+25);save()}alert(ok?"Richtig!":"Nicht richtig – die Straße gehört zu "+s.place+".");renderProgress();gameQuiz()})}
+function gameMapFind(){const s=weightedStreet();if(!s)return;selectedStreet=s;$("gameBox").innerHTML=`<div class=quizbox><h3>🗺️ Wo liegt „${esc(s.name)}“?</h3><p class=muted>Merke dir die vermutete Lage. Danach wird die echte Straße eingeblendet.</p><button id=showStreet class=primary>Straße anzeigen</button></div>`;switchView("karte");$("showStreet").onclick=()=>focusStreet(s)}
+function gameRoute(){const s=weightedStreet();if(!s)return;selectedStreet=s;$("gameBox").innerHTML=`<div class=quizbox><h3>🚓 Wache → ${esc(s.name)}</h3><p>Start: ${esc(CONFIG.station.address)}</p><p><b>Aufgabe:</b> Beschreibe den Fahrtweg aus dem Kopf. Erst danach die Route prüfen.</p><button id=routeShow class=primary>Route anzeigen</button></div>`}
+async function calculateRouteToStreet(s){if(!s?.geometry?.length)return;const end=s.geometry[Math.floor(s.geometry.length/2)];const url=`${CONFIG.router}/${CONFIG.station.lon},${CONFIG.station.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;try{const r=await fetch(url);if(!r.ok)throw 0;const j=await r.json();if(!j.routes?.length)throw 0;const rt=j.routes[0];switchView("karte");setTimeout(()=>{if(routeLayer)map.removeLayer(routeLayer);routeLayer=L.geoJSON(rt.geometry,{style:{color:"#d13d2f",weight:6}}).addTo(map);map.fitBounds(routeLayer.getBounds(),{padding:[30,30]});alert(`Route zur ${s.name}: ${Math.round(rt.distance/100)/10} km · ca. ${Math.round(rt.duration/60)} min.`)},80)}catch{alert("Routing momentan nicht erreichbar. Die Zielstraße kann trotzdem gelernt werden.")}}
+function gameSpeed(){let left=30,count=0,current=weightedStreet();$("gameBox").innerHTML=`<div class=quizbox><h3>⚡ 30-Sekunden-Challenge</h3><div style="font-size:32px;font-weight:900" id=timer>30</div><div style="font-size:22px;font-weight:800;margin:12px 0" id=speedStreet>${esc(current?.name||"")}</div><input id=speedInput placeholder="Ort eingeben …"><button id=speedBtn class=primary style="margin-top:8px">Antwort</button><div id=speedScore class=muted style="margin-top:8px">0 Treffer</div></div>`;const next=()=>{current=weightedStreet();$("speedStreet").textContent=current?.name||"";$("speedInput").value=""};const timer=setInterval(()=>{left--;if($("timer"))$("timer").textContent=left;if(left<=0){clearInterval(timer);alert(`Zeit! Ergebnis: ${count} Treffer.`);renderProgress()}},1000);$("speedBtn").onclick=()=>{if(!current)return;if($("speedInput").value.trim().toLowerCase()===current.place.toLowerCase()){count++;progress[current.id]=Math.min(100,score(current.id)+15);save()}$("speedScore").textContent=count+" Treffer";next()}}
+function gameWeak(){const weak=streets.filter(s=>score(s.id)<60).sort((a,b)=>score(a.id)-score(b.id));if(!weak.length){$("gameBox").innerHTML='<div class=success>🎉 Keine Straße unter 60%. Du hast alle aktuell gut trainiert.</div>';return}const s=weak[Math.floor(Math.random()*Math.min(weak.length,Math.max(1,Math.ceil(weak.length/2))))];$("gameBox").innerHTML=`<div class=quizbox><h3>🎯 Schwachstelle</h3><div style="font-size:25px;font-weight:900">${esc(s.name)}</div><p class=muted>${esc(s.place)} · Lernstand ${score(s.id)}%</p><button id=weakLearn class=primary>Diese Straße lernen</button></div>`;$("weakLearn").onclick=()=>learnStreet(s.id)}
+function gamePair(){const s=weightedStreet();if(!s)return;const near=streets.filter(x=>x.id!==s.id&&x.place===s.place).sort((a,b)=>{const ca=centroid(a.geometry),cb=centroid(b.geometry),cs=centroid(s.geometry);return distanceM(cs,ca)-distanceM(cs,cb)}).slice(0,4);$("gameBox").innerHTML=`<div class=quizbox><h3>Welche Straße liegt räumlich am nächsten?</h3><div style="font-size:23px;font-weight:900;margin:12px 0">${esc(s.name)}</div><div class=answers>${near.map(x=>`<button class=secondary data-id="${esc(x.id)}">${esc(x.name)}</button>`).join("")}</div></div>`;const correct=near[0];document.querySelectorAll("#gameBox .answers button").forEach(b=>b.onclick=()=>{const ok=b.dataset.id===correct?.id;if(ok){progress[s.id]=Math.min(100,score(s.id)+20);save()}alert(ok?"Richtig!":"Nicht ganz – räumlich am nächsten ist "+correct.name+".");renderProgress();gamePair()})}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));$("search").oninput=renderList;$("place").onchange=renderList;$("stationBtn").onclick=()=>{switchView("karte");map.setView([CONFIG.station.lat,CONFIG.station.lon],15);stationMarker.openPopup()};$("reloadMap").onclick=refreshData;$("resetProgress").onclick=()=>{if(confirm("Wirklich den kompletten Lernstand zurücksetzen?")){progress={};save();renderAll()}};$("exportProgress").onclick=()=>{const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),progress},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="strassenlernen-lernstand.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+document.querySelectorAll(".game").forEach(g=>g.onclick=()=>({quiz:gameQuiz,mapfind:gameMapFind,route:gameRoute,speed:gameSpeed,weak:gameWeak,pair:gamePair}[g.dataset.game])());$("gameBox").addEventListener("click",e=>{if(e.target.id==="routeShow")calculateRouteToStreet(selectedStreet)});
+initMap();loadData();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
-</body>
-</html>
+</body></html>
