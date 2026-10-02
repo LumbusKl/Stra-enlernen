@@ -1,0 +1,56 @@
+{
+  "station": {
+    "name": "Polizeirevier Pinneberg",
+    "address": "Elmshorner Straße 40, 25421 Pinneberg",
+    "lat": 53.666836,
+    "lon": 9.794725
+  },
+  "areas": [
+    [
+      "Pinneberg",
+      "complete"
+    ],
+    [
+      "Kummerfeld",
+      "complete"
+    ],
+    [
+      "Prisdorf",
+      "complete"
+    ],
+    [
+      "Borstel-Hohenraden",
+      "complete"
+    ],
+    [
+      "Ellerbek",
+      "complete"
+    ],
+    [
+      "Bönningstedt",
+      "complete"
+    ],
+    [
+      "Hasloh",
+      "complete"
+    ],
+    [
+      "Halstenbek",
+      "north_of_railway"
+    ],
+    [
+      "Rellingen",
+      "complete"
+    ],
+    [
+      "Egenbüttel",
+      "subarea_of_Rellingen"
+    ],
+    [
+      "Tangstedt (Kreis Pinneberg)",
+      "complete"
+    ]
+  ],
+  "data_source": "OpenStreetMap / Overpass API",
+  "routing": "OSRM demo router"
+}

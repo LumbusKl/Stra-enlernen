@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17324d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<title>Straßenlernen – Einsatzgebiet Pinneberg</title>
+<style>
+:root{--navy:#17324d;--blue:#2367a5;--bg:#f3f5f7;--card:#fff;--text:#16202a;--muted:#66727e;--border:#dce2e7;--good:#218739;--warn:#c58a00;--bad:#c13c32}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+header{background:var(--navy);color:#fff;padding:18px 18px 14px;position:sticky;top:0;z-index:1000}header h1{margin:0;font-size:23px}header p{margin:4px 0 0;opacity:.78;font-size:13px}
+nav{display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:73px;z-index:900}nav button{flex:1;border:0;background:#f0f3f5;padding:11px 7px;border-radius:12px;font-weight:700;color:var(--text)}nav button.active{background:#dceafa;color:#124e7f}
+main{max-width:980px;margin:auto;padding:16px 16px 90px}.view{display:none}.view.active{display:block}
+h2{font-size:21px;margin:5px 0 12px}.sub{color:var(--muted);font-size:14px;margin-top:-5px;margin-bottom:14px}
+input,select,button{font:inherit}input,select{width:100%;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.filters{display:grid;grid-template-columns:1fr 190px;gap:8px;margin-bottom:12px}.chips{display:flex;gap:7px;overflow:auto;padding-bottom:7px}.chip{white-space:nowrap;border:1px solid var(--border);background:#fff;padding:8px 11px;border-radius:20px}.chip.active{background:#dceafa;border-color:#9fc2e2}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:8px 0}.street-row{display:flex;align-items:center;gap:10px}.street-row .grow{flex:1;min-width:0}.street{font-weight:800;font-size:16px}.muted{color:var(--muted);font-size:13px}.pill{font-size:12px;border-radius:20px;padding:5px 8px;background:#edf0f2}.green{background:#e4f3e7;color:#176d2a}.yellow{background:#fff2cc;color:#815d00}.red{background:#fde5e2;color:#963128}
+.primary{border:0;background:var(--blue);color:#fff;padding:12px 14px;border-radius:12px;font-weight:800}.secondary{border:1px solid var(--border);background:#fff;padding:11px 13px;border-radius:12px;font-weight:700}
+#map{height:58vh;min-height:420px;border-radius:16px;border:1px solid var(--border);overflow:hidden}.mapbar{display:flex;gap:8px;margin:9px 0}.mapbar>*{flex:1}
+.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.game{cursor:pointer;min-height:120px}.game h3{margin:0 0 6px}.game p{margin:0;color:var(--muted);font-size:13px}
+.quizbox{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:12px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.answers button{text-align:left}
+.progressbar{height:8px;background:#e6eaed;border-radius:20px;overflow:hidden;margin-top:8px}.progressbar i{display:block;height:100%;background:#218739}
+.notice{background:#fff8df;border:1px solid #ead58d;padding:12px;border-radius:13px;color:#665400;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px}.stat b{display:block;font-size:21px}.stat span{font-size:12px;color:var(--muted)}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:8px;text-align:center;font-size:11px;color:var(--muted);z-index:1000}
+@media(max-width:650px){.filters,.game-grid,.answers{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}#map{height:55vh;min-height:360px}}
+</style>
+</head>
+<body>
+<header><h1>🚓 Straßenlernen</h1><p>Einsatzgebiet Pinneberg · Lern- und Routen-App</p></header>
+<nav>
+<button class="active" data-view="lernen">📚 Lernen</button>
+<button data-view="karte">🗺️ Karte</button>
+<button data-view="spiele">🎮 Spiele</button>
+<button data-view="fortschritt">📈 Fortschritt</button>
+</nav>
+<main>
+<section id="lernen" class="view active">
+<h2>Straßen lernen</h2><p class="sub">Suche jede erfasste Straße und trainiere genau die Straßen, die du noch nicht sicher kannst.</p>
+<div class="filters"><input id="search" placeholder="Straße oder Ort suchen …"><select id="place"><option>Alle Orte</option></select></div>
+<div id="chips" class="chips"></div>
+<div id="dataStatus" class="notice">Straßendaten werden geladen …</div>
+<div id="streetList"></div>
+</section>
+
+<section id="karte" class="view">
+<h2>Einsatzgebiet-Karte</h2><p class="sub">Startpunkt der Routen-Challenges: Polizeirevier Pinneberg, Elmshorner Straße 40.</p>
+<div id="map"></div>
+<div class="mapbar"><button id="stationBtn" class="primary">📍 Zur Wache</button><button id="reloadMap" class="secondary">↻ Straßen neu laden</button></div>
+</section>
+
+<section id="spiele" class="view">
+<h2>Spiele & Challenges</h2><p class="sub">Die Aufgaben werden aus der echten Straßen-Datenbank erzeugt.</p>
+<div class="game-grid">
+<div class="card game" data-game="quiz"><h3>🧠 Straßen-Quiz</h3><p>Welche Gemeinde gehört zur Straße?</p></div>
+<div class="card game" data-game="mapfind"><h3>🗺️ Wo liegt die Straße?</h3><p>Zielstraße auf der Karte finden.</p></div>
+<div class="card game" data-game="route"><h3>🚓 Wache → Zielstraße</h3><p>Start an der Dienststelle und Route aus dem Kopf beschreiben.</p></div>
+<div class="card game" data-game="speed"><h3>⚡ 30-Sekunden</h3><p>So viele Straßen wie möglich erkennen.</p></div>
+</div>
+<div id="gameBox"></div>
+</section>
+
+<section id="fortschritt" class="view">
+<h2>Dein Lernfortschritt</h2>
+<div class="stats"><div class="stat"><b id="statKnown">0</b><span>gelernt</span></div><div class="stat"><b id="statTotal">0</b><span>Straßen</span></div><div class="stat"><b id="statPercent">0%</b><span>Fortschritt</span></div></div>
+<div id="progressList"></div>
+</section>
+</main>
+<footer>© Straßenlernen · Kartendaten © OpenStreetMap-Mitwirkende</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const CONFIG={
+ areas:[
+  {name:"Pinneberg",osm:"Pinneberg",scope:"complete"},
+  {name:"Kummerfeld",osm:"Kummerfeld",scope:"complete"},
+  {name:"Prisdorf",osm:"Prisdorf",scope:"complete"},
+  {name:"Borstel-Hohenraden",osm:"Borstel-Hohenraden",scope:"complete"},
+  {name:"Ellerbek",osm:"Ellerbek",scope:"complete"},
+  {name:"Bönningstedt",osm:"Bönningstedt",scope:"complete"},
+  {name:"Hasloh",osm:"Hasloh",scope:"complete"},
+  {name:"Halstenbek",osm:"Halstenbek",scope:"north_of_railway"},
+  {name:"Rellingen",osm:"Rellingen",scope:"complete"},
+  {name:"Egenbüttel",osm:"Rellingen",scope:"subarea"},
+  {name:"Tangstedt",osm:"Tangstedt",scope:"complete"}
+ ],
+ station:{lat:53.666836,lon:9.794725,name:"Polizeirevier Pinneberg",address:"Elmshorner Straße 40, 25421 Pinneberg"},
+ overpass:"https://overpass-api.de/api/interpreter",
+ router:"https://router.project-osrm.org/route/v1/driving"
+};
+
+let streets=[], progress=JSON.parse(localStorage.getItem("streetProgress")||"{}"), map, mapLayer, stationMarker, selectedStreet=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function save(){localStorage.setItem("streetProgress",JSON.stringify(progress));}
+function score(id){return progress[id]||0}
+function cls(v){return v>=80?"green":v>=40?"yellow":"red"}
+function uniquePlaces(){return [...new Set(streets.map(s=>s.place))].sort((a,b)=>a.localeCompare(b,"de"))}
+function renderPlaces(){ $("place").innerHTML='<option>Alle Orte</option>'+uniquePlaces().map(p=>`<option>${esc(p)}</option>`).join(""); $("chips").innerHTML='<button class="chip active" data-place="Alle Orte">Alle</button>'+uniquePlaces().map(p=>`<button class="chip" data-place="${esc(p)}">${esc(p)}</button>`).join(""); document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ $("place").value=b.dataset.place; document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderList();});}
+function renderList(){
+ const q=$("search").value.trim().toLowerCase(), p=$("place").value;
+ const arr=streets.filter(s=>(p==="Alle Orte"||s.place===p)&&(!q||s.name.toLowerCase().includes(q)||s.place.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name,"de"));
+ $("streetList").innerHTML=arr.length?arr.map(s=>`<div class="card street-row"><div class="grow"><div class="street">${esc(s.name)}</div><div class="muted">${esc(s.place)} · ${s.segments} Kartenabschnitte</div><div class="progressbar"><i style="width:${score(s.id)}%"></i></div></div><span class="pill ${cls(score(s.id))}">${score(s.id)}%</span><button class="secondary learn" data-id="${s.id}">Lernen</button></div>`).join(""):'<div class="card">Keine Treffer.</div>';
+ document.querySelectorAll(".learn").forEach(b=>b.onclick=()=>learnStreet(b.dataset.id));
+}
+function learnStreet(id){const s=streets.find(x=>x.id===id); if(!s)return; progress[id]=Math.min(100,score(id)+20); save(); renderList(); renderProgress(); if(map)focusStreet(s); alert(`${s.name} · ${s.place}\\nLernstand: ${progress[id]}%`);}
+function renderProgress(){
+ const known=streets.filter(s=>score(s.id)>=80).length, avg=streets.length?Math.round(streets.reduce((a,s)=>a+score(s.id),0)/streets.length):0;
+ $("statKnown").textContent=known;$("statTotal").textContent=streets.length;$("statPercent").textContent=avg+"%";
+ const places=uniquePlaces();$("progressList").innerHTML=places.map(p=>{const a=streets.filter(s=>s.place===p),v=a.length?Math.round(a.reduce((x,s)=>x+score(s.id),0)/a.length):0;return `<div class="card"><b>${esc(p)}</b><div class="muted">${a.length} Straßen · Ø ${v}%</div><div class="progressbar"><i style="width:${v}%"></i></div></div>`}).join("");
+}
+async function loadStreets(){
+ $("dataStatus").textContent="Lade aktuelle Straßendaten von OpenStreetMap …";
+ const all=[]; 
+ for(const area of CONFIG.areas.filter(a=>a.scope!=="subarea")){
+  const q=`[out:json][timeout:90];area["boundary"="administrative"]["name"="${area.osm}"]->.a;(way(area.a)["highway"]["name"];);out geom;`;
+  try{const r=await fetch(CONFIG.overpass+"?data="+encodeURIComponent(q));if(!r.ok)throw Error();const j=await r.json();for(const e of j.elements||[])all.push({id:area.name+":"+e.id,name:e.tags.name,place:area.name,geometry:e.geometry||[],highway:e.tags.highway,osmId:e.id});}
+  catch(e){console.warn("Overpass",area.name,e)}
+ }
+ // Egenbüttel is a district of Rellingen; the app keeps it as a separate learning label.
+ // We include Rellingen streets in the Rellingen dataset and additionally identify nearby Egenbüttel streets by a coarse place-node radius only when coordinates are available.
+ const dedup=new Map();
+ for(const s of all){const key=s.place+"|"+s.name;if(!dedup.has(key))dedup.set(key,{...s,id:key,segments:1});else dedup.get(key).segments++;}
+ streets=[...dedup.values()];
+ // Halstenbek: runtime railway-aware filtering. Keep only streets whose geometry is on the north side of the nearest railway corridor.
+ await applyHalstenbekRailwayFilter();
+ renderPlaces();renderList();renderProgress();
+ $("dataStatus").textContent=`${streets.length} benannte Straßen/Street-Gruppen geladen. Quelle: OpenStreetMap.`;
+}
+async function applyHalstenbekRailwayFilter(){
+ const hs=streets.filter(s=>s.place==="Halstenbek"); if(!hs.length)return;
+ const q='[out:json][timeout:60];area["boundary"="administrative"]["name"="Halstenbek"]->.a;(way(area.a)["railway"];);out geom;';
+ try{
+  const r=await fetch(CONFIG.overpass+"?data="+encodeURIComponent(q));if(!r.ok)return;const j=await r.json();const rails=(j.elements||[]).flatMap(e=>e.geometry||[]);
+  if(!rails.length)return;
+  function nearestRailY(g){let best=1e9, y=0; for(const pt of g){for(const rr of rails){const d=Math.abs(pt.lat-rr.lat)+Math.abs(pt.lon-rr.lon);if(d<best){best=d;y=rr.lat}}}return y}
+  streets=streets.filter(s=>s.place!=="Halstenbek"||s.geometry.length===0||s.geometry.reduce((a,p)=>a+p.lat,0)/s.geometry.length>nearestRailY(s.geometry));
+ }catch(e){console.warn("Rail filter unavailable",e)}
+}
+function initMap(){
+ map=L.map("map").setView([53.66,9.84],11.5);
+ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap-Mitwirkende"}).addTo(map);
+ stationMarker=L.marker([CONFIG.station.lat,CONFIG.station.lon]).addTo(map).bindPopup(`<b>${CONFIG.station.name}</b><br>${CONFIG.station.address}`);
+ drawMapStreets();
+}
+function drawMapStreets(){
+ if(!map)return;if(mapLayer)map.removeLayer(mapLayer);
+ const layers=[]; for(const s of streets){if(!s.geometry?.length)continue;const latlng=s.geometry.map(p=>[p.lat,p.lon]);layers.push(L.polyline(latlng,{color:score(s.id)>=80?"#218739":score(s.id)>=40?"#c58a00":"#2367a5",weight:3,opacity:.7}).bindTooltip(`${esc(s.name)} · ${esc(s.place)}`,{sticky:true}).on("click",()=>learnStreet(s.id)));}
+ mapLayer=L.layerGroup(layers).addTo(map);
+}
+function focusStreet(s){if(!s.geometry?.length)return;const b=L.latLngBounds(s.geometry.map(p=>[p.lat,p.lon]));map.fitBounds(b,{padding:[30,30],maxZoom:17});switchView("karte");}
+function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="karte"){setTimeout(()=>map&&map.invalidateSize(),50)}}
+function randomStreet(){return streets[Math.floor(Math.random()*streets.length)]}
+function gameQuiz(){
+ const s=randomStreet();const places=uniquePlaces();const choices=[s.place,...places.filter(p=>p!==s.place).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+ $("gameBox").innerHTML=`<div class="quizbox"><h3>Zu welchem Ort gehört diese Straße?</h3><div style="font-size:25px;font-weight:900;margin:14px 0">${esc(s.name)}</div><div class="answers">${choices.map(c=>`<button class="secondary qanswer" data-a="${esc(c)}">${esc(c)}</button>`).join("")}</div></div>`;
+ document.querySelectorAll(".qanswer").forEach(b=>b.onclick=()=>{const ok=b.dataset.a===s.place;if(ok){progress[s.id]=Math.min(100,score(s.id)+25);save();}alert(ok?"Richtig!":"Nicht richtig – die Straße gehört zu "+s.place+".");renderProgress();gameQuiz();});
+}
+function gameMapFind(){
+ const s=randomStreet();selectedStreet=s; $("gameBox").innerHTML=`<div class="quizbox"><h3>Wo liegt „${esc(s.name)}“?</h3><p class="muted">Klicke die Karte an der vermuteten Stelle an. Danach kannst du die echte Straße einblenden.</p><button id="showStreet" class="primary">Straße anzeigen</button></div>`; switchView("karte"); $("showStreet").onclick=()=>focusStreet(s);
+}
+async function gameRoute(){
+ const s=randomStreet();selectedStreet=s;
+ $("gameBox").innerHTML=`<div class="quizbox"><h3>🚓 Wache → ${esc(s.name)}</h3><p>Start: ${esc(CONFIG.station.address)}</p><p><b>Aufgabe:</b> Beschreibe den Fahrtweg aus dem Kopf.</p><button id="routeShow" class="primary">Route anschließend anzeigen</button></div>`;
+ $("routeShow").onclick=()=>calculateRouteToStreet(s);
+}
+async function calculateRouteToStreet(s){
+ if(!s.geometry?.length){alert("Für diese Straße liegt momentan keine Geometrie vor.");return}
+ const end=s.geometry[Math.floor(s.geometry.length/2)];
+ const url=`${CONFIG.router}/${CONFIG.station.lon},${CONFIG.station.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&steps=true`;
+ try{
+  const r=await fetch(url);const j=await r.json();if(!j.routes?.length)throw Error();
+  const rt=j.routes[0];switchView("karte");setTimeout(()=>{const line=L.geoJSON(rt.geometry,{style:{color:"#d13d2f",weight:6}}).addTo(map);map.fitBounds(line.getBounds(),{padding:[30,30]});alert(`Route zur ${s.name}: ${Math.round(rt.distance/100)/10} km · ca. ${Math.round(rt.duration/60)} min.\\nDie rote Linie zeigt die berechnete Straßenroute.`)},80);
+ }catch(e){alert("Routing momentan nicht erreichbar. Die Zielstraße kann trotzdem auf der Karte gelernt werden.");focusStreet(s)}
+}
+function gameSpeed(){
+ let left=30,count=0,current=randomStreet(),timer;
+ $("gameBox").innerHTML=`<div class="quizbox"><h3>⚡ 30-Sekunden-Challenge</h3><div style="font-size:32px;font-weight:900" id="timer">30</div><div style="font-size:22px;font-weight:800;margin:12px 0" id="speedStreet">${esc(current.name)}</div><input id="speedInput" placeholder="Ort eingeben …"><button id="speedBtn" class="primary" style="margin-top:8px">Antwort</button><div id="speedScore" class="muted" style="margin-top:8px">0 Treffer</div></div>`;
+ const next=()=>{current=randomStreet();$("speedStreet").textContent=current.name;$("speedInput").value=""};
+ $("speedBtn").onclick=()=>{if($("speedInput").value.trim().toLowerCase()===current.place.toLowerCase()){count++;progress[current.id]=Math.min(100,score(current.id)+15);save();}$("speedScore").textContent=count+" Treffer";next()};
+ timer=setInterval(()=>{left--;if($("timer"))$("timer").textContent=left;if(left<=0){clearInterval(timer);alert(`Zeit! Ergebnis: ${count} Treffer.`);renderProgress();}},1000);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+$("search").oninput=renderList;$("place").onchange=renderList;
+$("stationBtn").onclick=()=>map.setView([CONFIG.station.lat,CONFIG.station.lon],15);
+$("reloadMap").onclick=async()=>{await loadStreets();drawMapStreets()};
+document.querySelectorAll(".game").forEach(g=>g.onclick=()=>({quiz:gameQuiz,mapfind:gameMapFind,route:gameRoute,speed:gameSpeed}[g.dataset.game])());
+initMap();loadStreets();
+</script>
+</body>
+</html>

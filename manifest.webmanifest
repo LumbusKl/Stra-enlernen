@@ -1,0 +1,9 @@
+{
+  "name": "Straßenlernen – Einsatzgebiet Pinneberg",
+  "short_name": "Straßenlernen",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f7",
+  "theme_color": "#17324d",
+  "lang": "de-DE"
+}
