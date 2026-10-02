@@ -1,4 +1,4 @@
-# Straßenlernen V5
+# Straßenlernen V5.1
 
 PWA für das definierte Einsatzgebiet rund um Pinneberg.
 
@@ -9,3 +9,6 @@ Neu in V5:
 - Straßenbestand wird weiterhin lokal gespeichert.
 
 Einsatzgebiet: Pinneberg, Kummerfeld, Prisdorf, Borstel-Hohenraden, Ellerbek, Bönningstedt, Hasloh, Halstenbek nur nördlich der Bahnlinie, Rellingen, Egenbüttel und Tangstedt (Kreis Pinneberg).
+
+
+V5.1: Der Übungsmodus „Straße auf leerer Karte“ verwendet eine echte Basiskarte ohne Straßen-/Ortsnamen. Der Tile-Dienst besitzt einen Fallback, falls der primäre Dienst nicht erreichbar ist.
